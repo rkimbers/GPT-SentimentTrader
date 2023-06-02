@@ -37,8 +37,8 @@ The different directories contain modules that fulfill specific functions within
 | [alpaca](/my_trading_bot/alpaca)    | The `trading.py` module in this directory manages all interactions with the Alpaca API. It is responsible for executing trading decisions made by the bot. |
 | [data](/my_trading_bot/data)        | This directory houses two modules. `fetch_articles.py` fetches articles from the internet, and `process_articles.py` preprocesses these articles to prepare them for sentiment analysis. |
 | [models](/my_trading_bot/models)    | The `trading_strategy.py` module in this directory implements the bot's trading strategy. It takes sentiment scores as input and outputs trading decisions based on these scores. |
-| [main.py](/my_trading_bot/main.py)  | The main script that ties all the modules together to enable the bot's functionality. |
-| [requirements.txt](/my_trading_bot/requirements.txt) | The file containing the list of dependencies and libraries required for the project. |
+| [main.py](/main.py)  | The main script that ties all the modules together to enable the bot's functionality. |
+| [requirements.txt](/requirements.txt) | The file containing the list of dependencies and libraries required for the project. |
 
 ## Setup & Installation
 
