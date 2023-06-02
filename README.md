@@ -8,7 +8,8 @@ The bot operates through a sequence of actions that include fetching articles fr
 
 The project is structured in the following way:
 
-```/my_trading_bot
+```
+/my_trading_bot
     /openai
         - __init__.py
         - sentiment_analysis.py
@@ -24,7 +25,8 @@ The project is structured in the following way:
         - trading_strategy.py
     - main.py
     - requirements.txt 
-    ```
+```
+    
     
 Modules
 The different directories contain modules that fulfill specific functions within the bot:
