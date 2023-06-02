@@ -23,7 +23,8 @@ The project is structured in the following way:
         - __init__.py
         - trading_strategy.py
     - main.py
-    - requirements.txt ```
+    - requirements.txt 
+    ```
     
 Modules
 The different directories contain modules that fulfill specific functions within the bot:
