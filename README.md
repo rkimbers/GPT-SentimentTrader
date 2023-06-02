@@ -35,7 +35,7 @@ data: This directory houses two modules. fetch_articles.py fetches articles from
 models: The trading_strategy.py module in this directory implements the bot's trading strategy. It takes sentiment scores as input and outputs trading decisions based on these scores.
 main.py is the main script that ties all the modules together to enable the bot's functionality.
 
-Setup & Installation
+## Setup & Installation
 
 To set up and run GPT-BasedTradingBot on your local machine, follow these steps:
 
@@ -47,7 +47,7 @@ Usage
 
 Run the bot by executing the main script: python main.py. The bot will fetch news articles, analyze their sentiment, determine trading actions, and execute trades.
 
-Dependencies
+## Dependencies
 
 GPT-SentimentTrader leverages a number of Python packages:
 
@@ -57,11 +57,12 @@ NLTK for Natural Language Processing
 BeautifulSoup and requests for fetching and parsing web articles
 Contributing
 
+## Contributions 
 Contributions to GPT-SentimentTrader are welcome! If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcomed.
 
 If you have any questions or need further clarification about the bot, feel free to open an issue to discuss what you would like to change or add.
 
-License
+## License
 
 GPT-SentimentTrader is licensed under the MIT license.
 
