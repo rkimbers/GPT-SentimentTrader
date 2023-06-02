@@ -28,7 +28,7 @@ The project is structured in the following way:
 ```
     
     
-Modules
+## Modules
 The different directories contain modules that fulfill specific functions within the bot:
 
 | Directory | Description |
@@ -45,7 +45,7 @@ The different directories contain modules that fulfill specific functions within
 
 To set up and run GPT-BasedTradingBot on your local machine, follow these steps:
 
-Clone the repository to your local machine: git clone https://github.com/rkimbers/GPT-BasedTradingBot.git
+Clone the repository to your local machine: git clone https://github.com/rkimbers/GPT-SentimentTrader.git
 Navigate to the project directory: cd GPT-SentimentTrader
 Install the required Python packages: pip install -r requirements.txt
 Update the required API keys in alpaca/trading.py and openai/sentiment_analysis.py.
