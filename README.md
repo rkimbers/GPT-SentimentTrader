@@ -8,8 +8,7 @@ The bot operates through a sequence of actions that include fetching articles fr
 
 The project is structured in the following way:
 
-bash
-Copy code
+`
 /my_trading_bot
     /openai
         __init__.py
@@ -25,7 +24,8 @@ Copy code
         __init__.py
         trading_strategy.py
     main.py
-    requirements.txt
+    requirements.txt`
+    
 Modules
 The different directories contain modules that fulfill specific functions within the bot:
 
