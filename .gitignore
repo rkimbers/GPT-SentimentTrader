@@ -1,0 +1,17 @@
+# .gitignore
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Jupyter notebook checkpoint files
+.ipynb_checkpoints/
+
+# Environment configuration
+.env
+
+# VSCode settings
+.vscode/
+
+# Virtual environment
+venv/
