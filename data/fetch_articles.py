@@ -4,15 +4,14 @@ from bs4 import BeautifulSoup
 import requests
 
 def fetch_articles(url):
-    
     """
-    Fetch articles from a given URL.
+    Fetches the raw HTML of articles from a given URL.
 
     Parameters:
     url: A string representing the URL from which to fetch articles.
 
     Returns:
-    A list of dictionaries. Each dictionary represents an article and has a 'content' key and a 'symbol' key.
+    A list of strings. Each string represents the raw HTML of an article.
     """
 
     headers = {
@@ -32,25 +31,20 @@ def fetch_articles(url):
         print("Error occurred:", err)
         return []
 
+    # Return the raw HTML content of each article
+    return [r.text]
 
-
-    # Parse the content of the request with BeautifulSoup
-    soup = BeautifulSoup(r.text, 'html.parser')
-
-    # Initialize an empty list to hold the articles
-    articles = []
-
-    # Fetch the article content using the appropriate class for Yahoo Finance
-    article_element = soup.find('div', {'class':'caas-body'})
-
-    if article_element:
-        # Extract the article content
-        content = article_element.text
-        # Add the article to the list of articles
-        articles.append({'content': content})
-
-    return articles
-
+def article_input():
+    try:
+        url = input("Please enter the URL of the website you want to analyze: ")
+    except KeyboardInterrupt:
+        print("\nInput interrupted. Exiting...")
+        exit()
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        exit()
+    
+    return url
 
 if __name__ == '__main__':
     # Ask the user for the URL of the website they want to analyze
@@ -60,5 +54,5 @@ if __name__ == '__main__':
     articles = fetch_articles(url)
 
     # Print the fetched articles
-    for article in articles:
-        print(f"Content: {article['content']}")
+    #for article in articles:
+        #print(f"Content: {article['content']}")
