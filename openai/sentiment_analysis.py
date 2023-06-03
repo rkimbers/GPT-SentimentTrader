@@ -10,23 +10,40 @@ OpenAI.api_key = openai_api_key
 
 def analyze_sentiment(processed_articles):
     """
-    Analyze the sentiment of a list of processed articles.
+    Function to analyze the sentiment of a list of articles using OpenAI's GPT API.
 
-    :param processed_articles: A list of strings, where each string is a processed article.
-    :return: A dictionary where the keys are article indices and the values are sentiment scores.
+    Parameters:
+    articles: A list of dictionaries. Each dictionary represents an article and has a 'content' key and a 'symbol' key.
+
+    Returns:
+    A dictionary with stock symbols as keys and sentiment scores as values.
     """
-    sentiment_scores = {}
+    scores = {}
 
-    for i, article in enumerate(processed_articles):
-        response = openai.Completion.create(
-            engine="text-davinci-002",
-            prompt=article,
-            temperature=0.7,
-            max_tokens=150
-        )
-        
-        # Assume the returned text is a sentiment score.
-        # In reality, you'd want to extract or calculate the sentiment score from the returned text.
-        sentiment_scores[i] = response.choices[0].text.strip()
+    for article in processed_articles:
+        # Extract the article content and symbol
+        content = article['content']
+        symbol = article['symbol']
 
-    return sentiment_scores
+        # Send the content to the GPT API for sentiment analysis
+        # (This is a placeholder. Replace with actual GPT API call.)
+        sentiment = OpenAI.analyze_sentiment(content)
+
+        # Calculate a sentiment score
+        # (This is a very basic way to calculate sentiment. You might want to replace this with a more sophisticated approach.)
+        if sentiment == 'positive':
+            score = 1
+        elif sentiment == 'negative':
+            score = -1
+        else:
+            score = 0
+
+        # If the symbol is already in the scores dictionary, add the new score to the existing score
+        # Otherwise, add a new entry to the scores dictionary
+        if symbol in scores:
+            scores[symbol] += score
+        else:
+            scores[symbol] = score
+
+    # Return the scores dictionary
+    return scores
