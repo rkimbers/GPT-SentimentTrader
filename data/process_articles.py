@@ -4,39 +4,36 @@ import requests
 import re
 
 # Function to filter out invisible HTML elements
-def tag_visible(element):
-    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
-        return False
-    if isinstance(element, Comment):
-        return False
-    return True
+#def tag_visible(element):
+#    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+#        return False
+#    if isinstance(element, Comment):
+#        return False
+#    return True
 
-def process_articles(articles):
+def process_articles(raw_articles):
+    """
+    Processes a list of raw HTML articles.
+
+    Parameters:
+    raw_articles: A list of strings. Each string represents the raw HTML of an article.
+
+    Returns:
+    A list of dictionaries representing the processed articles. Each dictionary has a 'content' key.
+    """
+    print("Starting process_articles function...")
+    
     processed_articles = []
 
-    for url in articles:
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
+    for raw_article in raw_articles:
+        # Parse the raw HTML content with BeautifulSoup
+        soup = BeautifulSoup(raw_article, 'html.parser')
 
-        # Find the div with class 'caas-body'
-        article_body = soup.find('div', {'class': 'caas-body'})
+        # Extract the article content
+        content = soup.find('div', {'class': 'caas-body'}).text.strip()
 
-        if article_body is not None:
-            # Get all paragraph tags within the div
-            paragraphs = article_body.find_all('p')
+        # Add the article to the list of processed articles
+        processed_articles.append({'content': content})
 
-            article_content = ''
-
-            # Extract the text from each paragraph tag and append it to the article content
-            for para in paragraphs:
-                article_content += para.text
-
-            # Use a regular expression to remove any unwanted characters (e.g., newlines)
-            article_content = re.sub('\n', '', article_content)
-
-            # Append the processed article to the list
-            processed_articles.append(article_content)
-        else:
-            print(f"Could not find the body of the article at {url}.")
-            
+    #print("Processed articles:", processed_articles)
     return processed_articles
