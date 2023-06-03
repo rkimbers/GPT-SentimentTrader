@@ -13,7 +13,7 @@ def analyze_sentiment(processed_articles):
     Function to analyze the sentiment of a list of articles using OpenAI's GPT API.
 
     Parameters:
-    articles: A list of dictionaries. Each dictionary represents an article and has a 'content' key and a 'symbol' key.
+    processed_articles: A list of dictionaries. Each dictionary represents an article and has a 'content' key and a 'symbol' key.
 
     Returns:
     A dictionary with stock symbols as keys and sentiment scores as values.
@@ -25,12 +25,16 @@ def analyze_sentiment(processed_articles):
         content = article['content']
         symbol = article['symbol']
 
-        # Send the content to the GPT API for sentiment analysis
-        # (This is a placeholder. Replace with actual GPT API call.)
-        sentiment = OpenAI.analyze_sentiment(content)
+        # Prepare the prompt for the GPT API
+        prompt = f"This is a sentiment analysis request. Please evaluate the sentiment of the following text: \"{content}\""
+
+        # Send the prompt to the GPT API and get the response
+        response = OpenAI.Completion.create(engine="text-davinci-003", prompt=prompt, max_tokens=3)
+
+        # Extract the sentiment from the response
+        sentiment = response['choices'][0]['text'].strip().lower()
 
         # Calculate a sentiment score
-        # (This is a very basic way to calculate sentiment. You might want to replace this with a more sophisticated approach.)
         if sentiment == 'positive':
             score = 1
         elif sentiment == 'negative':
