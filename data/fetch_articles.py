@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 
 def fetch_articles(url):
+    
     """
     Fetch articles from a given URL.
 
@@ -13,13 +14,25 @@ def fetch_articles(url):
     Returns:
     A list of dictionaries. Each dictionary represents an article and has a 'content' key and a 'symbol' key.
     """
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0;Win64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
+    }
+
     try:
         # Make a request to the website
-        r = requests.get(url)
+        r = requests.get(url, headers=headers)
         r.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        if r.status_code == 404:
+            print(f"Error 404: Page not found at {url}")
+        else:
+            print("HTTP Error:", errh)
     except requests.exceptions.RequestException as err:
         print("Error occurred:", err)
         return []
+
+
 
     # Parse the content of the request with BeautifulSoup
     soup = BeautifulSoup(r.text, 'html.parser')
@@ -27,19 +40,14 @@ def fetch_articles(url):
     # Initialize an empty list to hold the articles
     articles = []
 
-    # This is a placeholder for the actual code that you would need to write to fetch and parse the articles from the website
-    article_elements = soup.find_all('div', class_='article')
+    # Fetch the article content using the appropriate class for Yahoo Finance
+    article_element = soup.find('div', {'class':'caas-body'})
 
-    for article_element in article_elements:
-        # Extract the article content and symbol
-        content = article_element.find('p').text
-        symbol = article_element.find('span', class_='symbol').text
-
+    if article_element:
+        # Extract the article content
+        content = article_element.text
         # Add the article to the list of articles
-        articles.append({
-            'content': content,
-            'symbol': symbol,
-        })
+        articles.append({'content': content})
 
     return articles
 
@@ -53,5 +61,4 @@ if __name__ == '__main__':
 
     # Print the fetched articles
     for article in articles:
-        print(f"Symbol: {article['symbol']}")
         print(f"Content: {article['content']}")
