@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from bs4.element import Comment
+import requests
 import re
 
 # Function to filter out invisible HTML elements
@@ -10,20 +11,32 @@ def tag_visible(element):
         return False
     return True
 
-def process_articles(raw_articles):
+def process_articles(articles):
     processed_articles = []
-    
-    for raw_article in raw_articles:
-        soup = BeautifulSoup(raw_article, 'html.parser')
-        texts = soup.findAll(text=True)
-        visible_texts = filter(tag_visible, texts)
 
-        # Join all the visible text fragments together
-        full_article_text = " ".join(t.strip() for t in visible_texts)
+    for url in articles:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Optional: Remove extra whitespaces and newlines
-        full_article_text = re.sub(r'\s+', ' ', full_article_text)
+        # Find the div with class 'caas-body'
+        article_body = soup.find('div', {'class': 'caas-body'})
 
-        processed_articles.append(full_article_text)
+        if article_body is not None:
+            # Get all paragraph tags within the div
+            paragraphs = article_body.find_all('p')
 
+            article_content = ''
+
+            # Extract the text from each paragraph tag and append it to the article content
+            for para in paragraphs:
+                article_content += para.text
+
+            # Use a regular expression to remove any unwanted characters (e.g., newlines)
+            article_content = re.sub('\n', '', article_content)
+
+            # Append the processed article to the list
+            processed_articles.append(article_content)
+        else:
+            print(f"Could not find the body of the article at {url}.")
+            
     return processed_articles
