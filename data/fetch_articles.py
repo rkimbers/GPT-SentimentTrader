@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 
 def fetch_articles(url):
+    
     """
     Fetches the raw HTML of articles from a given URL.
 
