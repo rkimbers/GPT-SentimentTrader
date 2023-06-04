@@ -37,45 +37,51 @@ def analyze_sentiment(articles):
 
     # Process the response
         try:
-            if "(" in model_response:
-                # Handle format "CompanyName (Sentiment)"
-                symbol, sentiment = model_response.split("(")
-                sentiment = sentiment.rstrip(')').strip()  # Remove the closing parenthesis and strip whitespace
-                symbol = symbol.strip()
-                ticker = get_symbol(symbol)
+            responses = model_response.split(",")  # Separate different ticker sentiment pairs
 
-            else:
-                # Handle format "Ticker: CompanyName  Sentiment: SentimentValue"
-                components = model_response.split("  ")
-                
-                if len(components) != 2:
-                    print(f"Could not process the model's response: {model_response}")
-                    continue
+            for response in responses:
+                response = response.strip()  # Remove leading/trailing whitespace
 
-                symbol = components[0].split(":")[1].strip() 
-                sentiment = components[1].split(":")[1].strip()
-                ticker = get_symbol(symbol)
+                if "(" in response:
+                    # Handle format "CompanyName (Sentiment)"
+                    symbol, sentiment = response.split("(")
+                    sentiment = sentiment.rstrip(')').strip()  # Remove the closing parenthesis and strip whitespace
+                    symbol = symbol.strip()
+                    ticker = get_symbol(symbol)
 
-        # Your code to append the ticker and sentiment to the scores dictionary goes here
+                else:
+                    # Handle format "Ticker: CompanyName  Sentiment: SentimentValue"
+                    components = response.split("  ")
+            
+                    if len(components) != 2:
+                        print(f"Could not process the model's response: {response}")
+                        continue
+
+                    symbol = components[0].split(":")[1].strip() 
+                    sentiment = components[1].split(":")[1].strip()
+                    ticker = get_symbol(symbol)
+
+                # Your code to append the ticker and sentiment to the scores dictionary goes here
 
 
-            # Calculate a sentiment score
-            if sentiment.lower() == 'positive':
-                score = 1
-            elif sentiment.lower() == 'negative':
-                score = -1
-            else:
-                score = 0
+                # Calculate a sentiment score
+                if sentiment.lower() == 'positive':
+                    score = 1
+                elif sentiment.lower() == 'negative':
+                    score = -1
+                else:
+                    score = 0
 
-            # If the symbol(ticker) is already in the scores dictionary, add the new score to the existing score
-            # Otherwise, add a new entry to the scores dictionary
-            if ticker in scores:
-                scores[ticker] += score
-            else:
-                scores[ticker] = score
+                # If the symbol(ticker) is already in the scores dictionary, add the new score to the existing score
+                # Otherwise, add a new entry to the scores dictionary
+                if ticker in scores:
+                    scores[ticker] += score
+                else:
+                    scores[ticker] = score
 
         except ValueError:
             print(f"Could not process the model's response: {model_response}")
+
 
     # Return the scores dictionary
     print(scores)
