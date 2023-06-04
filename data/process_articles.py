@@ -30,7 +30,7 @@ def process_articles(raw_articles):
         soup = BeautifulSoup(raw_article, 'html.parser')
 
         # Extract the article content
-        content = soup.find('div', {'class': 'caas-body'}).text.strip()
+        content = soup.find('div', {'class': 'caas-content'}).text.strip()
 
         # Add the article to the list of processed articles
         processed_articles.append({'content': content})
