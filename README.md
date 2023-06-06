@@ -10,10 +10,11 @@ The project is structured in the following way:
 
 ```
 /my_trading_bot
-    /openai
+    /my_openai
         - __init__.py
         - sentiment_analysis.py
-    /alpaca
+        - finance_utils.py
+    /my_alpaca
         - __init__.py
         - trading.py
     /data
