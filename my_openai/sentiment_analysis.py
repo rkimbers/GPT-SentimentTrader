@@ -81,7 +81,7 @@ def analyze_sentiment(articles):
                     else:
                         score = 0
 
-                     # If the symbol(ticker) is already in the scores dictionary, add the new score to the existing score
+                    # If the symbol(ticker) is already in the scores dictionary, add the new score to the existing score
                     # Otherwise, add a new entry to the scores dictionary
                     if ticker in scores:
                         scores[ticker] += score
@@ -94,4 +94,4 @@ def analyze_sentiment(articles):
 
         # Return the scores dictionary
         print(scores)
-        return scores   
+        return scores
