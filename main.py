@@ -20,10 +20,14 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 def main():
     # Step 1: Fetch and process articles
 
-    # Gather URL
-    
-    url = article_input()
-    articles = fetch_articles(url)
+    # Gather URLs
+    urls = article_input()
+    articles = []
+    # Fetch the articles for each URL
+    for url in urls:
+        fetched_article = fetch_articles(url)
+        articles.append(fetched_article)
+
     processed_articles = process_articles(articles)
 
     # Step 2: Analyze sentiment of articles
@@ -39,3 +43,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
