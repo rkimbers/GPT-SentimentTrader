@@ -30,10 +30,13 @@ def process_articles(raw_articles):
         soup = BeautifulSoup(raw_article, 'html.parser')
 
         # Extract the article content
-        content = soup.find('div', {'class': 'caas-content'}).text.strip()
+        content_div = soup.find('div', {'class': 'caas-content'})
+        if content_div is None:
+            print(f"Warning: Could not find content div in article: {raw_article}")
+            continue
+        content = content_div.text.strip()
 
         # Add the article to the list of processed articles
         processed_articles.append({'content': content})
 
-    #print("Processed articles:", processed_articles)
     return processed_articles
