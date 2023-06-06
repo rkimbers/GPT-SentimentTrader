@@ -1,4 +1,4 @@
-# Data Directory
+# data
 
 This directory contains the necessary modules for fetching and processing financial news articles to be used in the sentiment analysis.
 
