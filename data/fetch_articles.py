@@ -4,21 +4,19 @@ from bs4 import BeautifulSoup
 import requests
 
 def fetch_articles(url):
-    
     """
-    Fetches the raw HTML of articles from a given URL.
+    Fetches the raw HTML of an article from a given URL.
 
     Parameters:
-    url: A string representing the URL from which to fetch articles.
+    url: A string representing the URL from which to fetch the article.
 
     Returns:
-    A list of strings. Each string represents the raw HTML of an article.
+    A string representing the raw HTML of the article.
     """
-
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0;Win64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
     }
-
+    
     try:
         # Make a request to the website
         r = requests.get(url, headers=headers)
@@ -30,29 +28,28 @@ def fetch_articles(url):
             print("HTTP Error:", errh)
     except requests.exceptions.RequestException as err:
         print("Error occurred:", err)
-        return []
+        return None
 
-    # Return the raw HTML content of each article
-    return [r.text]
+    # Return the raw HTML content of the article
+    return r.text
+
 
 def article_input():
-    try:
-        url = input("Please enter the URL of the website you want to analyze: ")
-    except KeyboardInterrupt:
-        print("\nInput interrupted. Exiting...")
-        exit()
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        exit()
-    
-    return url
+    urls = []
+    while True:
+        url = input("Enter an article URL (or 'done' when finished): ")
+        if url.lower() == 'done':
+            break
+        else:
+            urls.append(url)
+    return urls
 
 if __name__ == '__main__':
-    # Ask the user for the URL of the website they want to analyze
-    url = input("Please enter the URL of the website you want to analyze: ")
+    # Ask the user for the URLs of the website they want to analyze
+    urls = article_input()
 
-    # Fetch the articles from the given URL
-    articles = fetch_articles(url)
+    # Fetch the articles from the given URLs
+    articles = fetch_articles(urls)
 
     # Print the fetched articles
     #for article in articles:
