@@ -33,10 +33,10 @@ The different directories contain modules that fulfill specific functions within
 
 | Directory | Description |
 |-----------|-------------|
-| [openai](/my_trading_bot/openai)    | This directory contains the `sentiment_analysis.py` module, which interacts with OpenAI's GPT-3.5 API to analyze the sentiment of news articles. |
-| [alpaca](/my_trading_bot/alpaca)    | The `trading.py` module in this directory manages all interactions with the Alpaca API. It is responsible for executing trading decisions made by the bot. |
-| [data](/my_trading_bot/data)        | This directory houses two modules. `fetch_articles.py` fetches articles from the internet, and `process_articles.py` preprocesses these articles to prepare them for sentiment analysis. |
-| [models](/my_trading_bot/models)    | The `trading_strategy.py` module in this directory implements the bot's trading strategy. It takes sentiment scores as input and outputs trading decisions based on these scores. |
+| [openai](/my_openai)    | This directory contains the `sentiment_analysis.py` module, which interacts with OpenAI's GPT-3.5 API to analyze the sentiment of news articles. |
+| [alpaca](/my_alpaca)    | The `trading.py` module in this directory manages all interactions with the Alpaca API. It is responsible for executing trading decisions made by the bot. |
+| [data](/data)        | This directory houses two modules. `fetch_articles.py` fetches articles from the internet, and `process_articles.py` preprocesses these articles to prepare them for sentiment analysis. |
+| [models](/models)    | The `trading_strategy.py` module in this directory implements the bot's trading strategy. It takes sentiment scores as input and outputs trading decisions based on these scores. |
 | [main.py](/main.py)  | The main script that ties all the modules together to enable the bot's functionality. |
 | [requirements.txt](/requirements.txt) | The file containing the list of dependencies and libraries required for the project. |
 
