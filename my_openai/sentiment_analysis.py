@@ -25,17 +25,41 @@ def analyze_sentiment(articles):
         # Extract the article content
         content = article['content']
 
-        # Prepare the prompt for the GPT API
-        prompt = f"The following news article was found: \n\n\"{content}\"\n\n\
-        Please identify any mentioned stock tickers and the sentiment (positive, negative, neutral) associated with each ticker. Format your response as follows: TickerName (sentiment)"
+        # Prepare the system message
+        system_message = "This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. Please format your response in this way: Company (Sentiment). The sentiment can only be positive, neutral, or negative"
 
-        # Send the prompt to the GPT API and get the response
-        response = openai.Completion.create(model="text-davinci-003", prompt=prompt, max_tokens=1000)
+        # Prepare the user message (the article content)
+        user_message = content
+        
+        #Suggestion prompt due to AI's inherent uncertainty
+        suggestion_prompt = "For example: 'Nvidia (Positive)'"
 
-        # The model's response will be in the form 'Symbol: sentiment'
-        model_response = response.choices[0].text.strip()
 
-    # Process the response
+        # Define the messages for the chat
+        # Define the messages for the chat
+        messages = [
+        {"role": "system", "content": system_message},
+        {"role": "system", "content": suggestion_prompt},
+        {"role": "user", "content": user_message},
+        ]
+
+
+        # Send the chat messages to the GPT API and get the response
+        response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # Using the gpt-3.5-turbo model
+        messages=messages,
+        max_tokens=1000,  # Same as DaVinci
+        )
+
+        # The model's response will be in the message content of the last choice
+        model_response = response.choices[0].message.content.strip()
+        
+        print(model_response)
+        
+        #DaVinci version
+        #response = openai.Completion.create(model="text-davinci-003", prompt=prompt, max_tokens=1000)
+
+        # Process the response
         try:
             responses = model_response.split(",")  # Separate different ticker sentiment pairs
 
@@ -49,40 +73,25 @@ def analyze_sentiment(articles):
                     symbol = symbol.strip()
                     ticker = get_symbol(symbol)
 
-                else:
-                    # Handle format "Ticker: CompanyName  Sentiment: SentimentValue"
-                    components = response.split("  ")
-            
-                    if len(components) != 2:
-                        print(f"Could not process the model's response: {response}")
-                        continue
+                    # Calculate a sentiment score
+                    if sentiment.lower() == 'positive':
+                        score = 1
+                    elif sentiment.lower() == 'negative':
+                        score = -1
+                    else:
+                        score = 0
 
-                    symbol = components[0].split(":")[1].strip() 
-                    sentiment = components[1].split(":")[1].strip()
-                    ticker = get_symbol(symbol)
-
-                # Your code to append the ticker and sentiment to the scores dictionary goes here
-
-
-                # Calculate a sentiment score
-                if sentiment.lower() == 'positive':
-                    score = 1
-                elif sentiment.lower() == 'negative':
-                    score = -1
-                else:
-                    score = 0
-
-                # If the symbol(ticker) is already in the scores dictionary, add the new score to the existing score
-                # Otherwise, add a new entry to the scores dictionary
-                if ticker in scores:
-                    scores[ticker] += score
-                else:
-                    scores[ticker] = score
+                     # If the symbol(ticker) is already in the scores dictionary, add the new score to the existing score
+                    # Otherwise, add a new entry to the scores dictionary
+                    if ticker in scores:
+                        scores[ticker] += score
+                    else:
+                        scores[ticker] = score
 
         except ValueError:
             print(f"Could not process the model's response: {model_response}")
 
 
-    # Return the scores dictionary
-    print(scores)
-    return scores
+        # Return the scores dictionary
+        print(scores)
+        return scores   
