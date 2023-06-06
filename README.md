@@ -34,8 +34,8 @@ The different directories contain modules that fulfill specific functions within
 
 | Directory | Description |
 |-----------|-------------|
-| [openai](/my_openai)    | This directory contains the `sentiment_analysis.py` module, which interacts with OpenAI's GPT-3.5 API to analyze the sentiment of news articles. |
-| [alpaca](/my_alpaca)    | The `trading.py` module in this directory manages all interactions with the Alpaca API. It is responsible for executing trading decisions made by the bot. |
+| [my_openai](/my_openai)    | This directory contains the `sentiment_analysis.py` module, which interacts with OpenAI's GPT-3.5 API to analyze the sentiment of news articles. |
+| [my_alpaca](/my_alpaca)    | The `trading.py` module in this directory manages all interactions with the Alpaca API. It is responsible for executing trading decisions made by the bot. |
 | [data](/data)        | This directory houses two modules. `fetch_articles.py` fetches articles from the internet, and `process_articles.py` preprocesses these articles to prepare them for sentiment analysis. |
 | [models](/models)    | The `trading_strategy.py` module in this directory implements the bot's trading strategy. It takes sentiment scores as input and outputs trading decisions based on these scores. |
 | [main.py](/main.py)  | The main script that ties all the modules together to enable the bot's functionality. |
@@ -48,7 +48,7 @@ To set up and run GPT-BasedTradingBot on your local machine, follow these steps:
 1. Clone the repository to your local machine: `git clone https://github.com/rkimbers/GPT-SentimentTrader.git`
 2. Navigate to the project directory: `cd GPT-SentimentTrader`
 3. Install the required Python packages: `pip install -r requirements.txt`
-4. Update the required API keys in `alpaca/trading.py` and `openai/sentiment_analysis.py`.
+4. Update the required API keys in `main.py`, `alpaca/trading.py`, and `openai/sentiment_analysis.py`.
 
 ## Usage
 
