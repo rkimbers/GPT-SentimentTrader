@@ -93,5 +93,5 @@ def analyze_sentiment(articles):
 
 
         # Return the scores dictionary
-        print(scores)
-        return scores
+    print(scores)
+    return scores
