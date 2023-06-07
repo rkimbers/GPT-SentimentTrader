@@ -1,9 +1,7 @@
-# fetch_articles.py
-
 from bs4 import BeautifulSoup
 import requests
 
-def fetch_articles(url):
+def fetch_article(url):
     """
     Fetches the raw HTML of an article from a given URL.
 
@@ -26,6 +24,7 @@ def fetch_articles(url):
             print(f"Error 404: Page not found at {url}")
         else:
             print("HTTP Error:", errh)
+        return None
     except requests.exceptions.RequestException as err:
         print("Error occurred:", err)
         return None
@@ -33,6 +32,19 @@ def fetch_articles(url):
     # Return the raw HTML content of the article
     return r.text
 
+def fetch_articles():
+    base_url = "https://finance.yahoo.com"
+    topic_url = "https://finance.yahoo.com/topic/earnings"
+
+    response = requests.get(topic_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    article_links = []
+    for link in soup.find_all('a'):
+        href = link.get('href')
+        if href and href.startswith("/news"):
+            article_links.append(base_url + href)
+    return article_links[:5]  # Return only the first 5 article URLs
 
 def article_input():
     urls = []
@@ -45,12 +57,10 @@ def article_input():
     return urls
 
 if __name__ == '__main__':
-    # Ask the user for the URLs of the website they want to analyze
-    urls = article_input()
-
     # Fetch the articles from the given URLs
-    articles = fetch_articles(urls)
+    urls = fetch_articles()
+    articles = [fetch_article(url) for url in urls]
 
     # Print the fetched articles
     #for article in articles:
-        #print(f"Content: {article['content']}")
+        #print(article)
