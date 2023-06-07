@@ -71,5 +71,5 @@ If you have any questions or need further clarification about the bot, feel free
 
 ## License
 
-GPT-SentimentTrader is licensed under the MIT license.
+GPT-SentimentTrader is licensed under the [MIT License](/LICENSE).
 
