@@ -32,11 +32,14 @@ def get_symbol(company_name):
     data = response.json()
 
     # If there are no matches, return None
-    if not data['bestMatches']:
+    if not data.get('bestMatches'):
         return None
 
-    # The response includes a list of matches. We'll just take the first match.
-    first_match = data['bestMatches'][0]
+    # The response includes a list of matches. Loop over them to find the first match where the region is "United States".
+    for match in data['bestMatches']:
+        if match['4. region'] == "United States":
+            # This match is in the United States.
+            return match['1. symbol']
 
-    # Extract and return the symbol of the first match
-    return first_match['1. symbol']
+    # If no match for the United States is found, return None
+    return None
