@@ -44,7 +44,7 @@ def fetch_articles():
         href = link.get('href')
         if href and href.startswith("/news"):
             article_links.append(base_url + href)
-    return article_links[:5]  # Return only the first 5 article URLs
+    return article_links[:10]  # Return only the first 10 article URLs
 
 def article_input():
     urls = []
