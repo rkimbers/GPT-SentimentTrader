@@ -1,23 +1,99 @@
-# file: models/trading_strategy.py
+#file: trading_strategy.py
+from operator import itemgetter
+from alpaca_trade_api import REST
+from alpaca.trading.client import TradingClient
+from finance_utils import get_symbol 
+from dotenv import load_dotenv
+
+import os
+import requests
+from operator import itemgetter
+from math import floor
+
+ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
+
+# Getting non-marginable account value and printing it
+def account_value():  
+    trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
+    account = trading_client.get_account()
+    return float(account.non_marginable_buying_power)
+
+# Gets share price given a ticker symbol
+def get_share_price(ticker):
+    ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={ALPHA_VANTAGE_API_KEY}"
+
+    # Send the GET request and get the response
+    response = requests.get(url)
+
+    # Parse the JSON response
+    data = response.json()
+    # Ensure the response contains the key "Time Series (5min)"
+    if "Time Series (5min)" in data:
+        # Get the most recent timestamp
+        recent_timestamp = max(data["Time Series (5min)"].keys())
+
+        # Get the closing price at the most recent timestamp
+        recent_price = data["Time Series (5min)"][recent_timestamp]["4. close"]
+
+        return float(recent_price)
+    else:
+        print(f"Unable to get price for ticker {ticker}.")
+        return None
+
 
 def decide_trades(sentiment_scores):
-    """
-    Decide on the trades to make based on sentiment scores.
+    portfolio_value = account_value()
+    order_cap = portfolio_value * 0.10
 
-    This function currently uses a very simple strategy: it buys one share of a stock if its sentiment score is positive,
-    and sells one share if its sentiment score is negative.
+    # Convert company names to ticker symbols and get share prices
+    trades_preparation = []
+    for company, sentiment_score in sentiment_scores.items():
+        symbol = get_symbol(company)
+        if symbol is not None:
+            share_price = get_share_price(symbol)
+            trades_preparation.append({
+                'symbol': symbol,
+                'sentiment_score': sentiment_score,
+                'share_price': share_price,
+            })
 
-    In a real-world application, you'd likely want to use a more sophisticated strategy.
+    # Sort trades in descending order of sentiment score
+    trades_preparation.sort(key=itemgetter('sentiment_score'), reverse=True)
 
-    :param sentiment_scores: A dictionary where the keys are stock symbols and the values are sentiment scores.
-    :return: A list of trades to execute. Each trade is represented as a dictionary with keys "symbol", "qty" and "side".
-    """
+    # Calculate the total sentiment score
+    total_sentiment = sum([trade['sentiment_score'] for trade in trades_preparation])
 
-    trades = []
-    for symbol, score in sentiment_scores.items():
-        if score > 0:
-            trades.append({"symbol": symbol, "qty": 1, "side": "buy"})
-        elif score < 0:
-            trades.append({"symbol": symbol, "qty": 1, "side": "sell"})
+    # Decide on trades to execute
+    trades_to_execute = []
+    for trade in trades_preparation:
+        weight = trade['sentiment_score'] / total_sentiment  # Calculate weight for each stock
+        allocated_money = order_cap * weight  # Allocate money based on weight
 
-    return trades
+        # Ensure that allocated money is not greater than available budget
+        while allocated_money > order_cap:
+            allocated_money -= trade['share_price']
+
+        qty = floor(allocated_money / trade['share_price'])  # Calculate quantity to buy
+
+        trades_to_execute.append({
+            'symbol': trade['symbol'],
+            'qty': qty,
+            'sentiment_score': trade['sentiment_score'],
+            'share_price': trade['share_price'],
+        })
+
+        # Update the order cap
+        order_cap -= qty * trade['share_price']
+
+    return trades_to_execute
+
+if __name__ == '__main__':
+    load_dotenv()
+    
+    ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+    ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
+    
+    print(get_share_price('NVDA'))
