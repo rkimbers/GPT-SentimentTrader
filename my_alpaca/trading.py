@@ -9,13 +9,6 @@ import os
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
-# Getting account information and printing it
-def account_info():
-    trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
-    account = trading_client.get_account()
-    for property_name, value in account:
-        print(f"\"{property_name}\": {value}")
-
 # Get all open positions and print each of them
 def list_positions():
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
