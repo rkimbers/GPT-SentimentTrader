@@ -70,13 +70,16 @@ def decide_trades(sentiment_scores):
     trades_to_execute = []
     for trade in trades_preparation:
         weight = trade['sentiment_score'] / total_sentiment  # Calculate weight for each stock
-        allocated_money = order_cap * weight  # Allocate money based on weight
+        allocated_money = portfolio_value * 0.10 * weight  # Allocate money based on weight
 
-        # Ensure that allocated money is not greater than available budget
-        while allocated_money > order_cap:
-            allocated_money -= trade['share_price']
+        if allocated_money > order_cap:  # Ensure that allocated money is not greater than available budget
+            allocated_money = order_cap
 
         qty = floor(allocated_money / trade['share_price'])  # Calculate quantity to buy
+
+        # Ensure qty * share_price doesn't exceed order_cap
+        if qty * trade['share_price'] > order_cap:
+            qty = floor(order_cap / trade['share_price'])
 
         trades_to_execute.append({
             'symbol': trade['symbol'],
@@ -90,10 +93,19 @@ def decide_trades(sentiment_scores):
 
     return trades_to_execute
 
+
 if __name__ == '__main__':
     load_dotenv()
     
     ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     
-    print(get_share_price('NVDA'))
+    sentiment_scores = {
+        'Nvidia': 8,
+        'Amazon': 5,
+        'Target Corporation': 5,
+        'Advanced Micro Devices, Inc.': 2,
+        'Apple Inc.': 9
+    }
+    
+    print(decide_trades(sentiment_scores))
