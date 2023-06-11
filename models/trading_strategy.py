@@ -52,8 +52,10 @@ def decide_trades(sentiment_scores):
     trades_preparation = []
     for company, sentiment_score in sentiment_scores.items():
         symbol = get_symbol(company)
+        print(f"{company} symbol: {symbol}")  # Debugging line
         if symbol is not None:
             share_price = get_share_price(symbol)
+            print(f"{company} share price: {share_price}")  # Debugging line
             trades_preparation.append({
                 'symbol': symbol,
                 'sentiment_score': sentiment_score,
@@ -70,16 +72,15 @@ def decide_trades(sentiment_scores):
     trades_to_execute = []
     for trade in trades_preparation:
         weight = trade['sentiment_score'] / total_sentiment  # Calculate weight for each stock
-        allocated_money = portfolio_value * 0.10 * weight  # Allocate money based on weight
+        allocated_money = order_cap * weight  # Allocate money based on weight
+        print(f"{trade['symbol']} allocated money: {allocated_money}")  # Debugging line
 
-        if allocated_money > order_cap:  # Ensure that allocated money is not greater than available budget
-            allocated_money = order_cap
+        # Ensure that allocated money is not greater than available budget
+        while allocated_money > order_cap:
+            allocated_money -= trade['share_price']
 
         qty = floor(allocated_money / trade['share_price'])  # Calculate quantity to buy
-
-        # Ensure qty * share_price doesn't exceed order_cap
-        if qty * trade['share_price'] > order_cap:
-            qty = floor(order_cap / trade['share_price'])
+        print(f"{trade['symbol']} quantity: {qty}")  # Debugging line
 
         trades_to_execute.append({
             'symbol': trade['symbol'],
@@ -94,6 +95,7 @@ def decide_trades(sentiment_scores):
     return trades_to_execute
 
 
+
 if __name__ == '__main__':
     load_dotenv()
     
@@ -103,9 +105,9 @@ if __name__ == '__main__':
     sentiment_scores = {
         'Nvidia': 8,
         'Amazon': 5,
-        'Target Corporation': 5,
-        'Advanced Micro Devices, Inc.': 2,
-        'Apple Inc.': 9
+        'Target Corp': 5,
+        'Advanced Micro Devices Inc': 2,
+        'Apple Inc': 9
     }
     
     print(decide_trades(sentiment_scores))
