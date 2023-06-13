@@ -2,16 +2,24 @@
 import requests
 import os
 
+from typing import List, Dict
+
+def translate_symbols(positions: List[Dict]) -> List[Dict]:
+    translated_positions = []
+    for position in positions:
+        # Get ticker symbol for company name
+        ticker_symbol = get_symbol(position['symbol'])
+
+        # If a valid ticker symbol is returned, add it to the new position list
+        if ticker_symbol:
+            translated_positions.append({
+                'symbol': ticker_symbol,
+                'qty': position['qty']
+            })
+            
+    return translated_positions
+
 def get_symbol(company_name):
-    """
-    Function to get the ticker symbol of a company using the Alpha Vantage API.
-
-    Parameters:
-    company_name: The name of the company
-
-    Returns:
-    The ticker symbol of the company, or None if no match is found.
-    """
 
     # Your Alpha Vantage API Key
     API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
@@ -43,3 +51,49 @@ def get_symbol(company_name):
 
     # If no match for the United States is found, return None
     return None
+
+
+# Gets share price given a ticker symbol
+def get_share_price(ticker):
+    
+    ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={ALPHA_VANTAGE_API_KEY}"
+
+    # Send the GET request and get the response
+    response = requests.get(url)
+
+    # Parse the JSON response
+    data = response.json()
+    # Ensure the response contains the key "Time Series (5min)"
+    if "Time Series (5min)" in data:
+        # Get the most recent timestamp
+        recent_timestamp = max(data["Time Series (5min)"].keys())
+
+        # Get the closing price at the most recent timestamp
+        recent_price = data["Time Series (5min)"][recent_timestamp]["4. close"]
+
+        return float(recent_price)
+    else:
+        print(f"Unable to get price for ticker {ticker}.")
+        return None
+    
+
+def prepare_trades(sentiment_scores):
+    trades_preparation = []
+    for company, sentiment_score in sentiment_scores.items():
+        symbol = get_symbol(company)
+        print(f"{company} symbol: {symbol}")  # Debugging line
+        if symbol is not None:
+            share_price = get_share_price(symbol)
+            print(f"{company} share price: {share_price}")  # Debugging line
+            trades_preparation.append({
+                'symbol': symbol,
+                'sentiment_score': sentiment_score,
+                'share_price': share_price,
+            })
+    return trades_preparation
+
+
+def calculate_total_sentiment(trades_preparation):
+    return sum([trade['sentiment_score'] for trade in trades_preparation])
