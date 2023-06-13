@@ -1,6 +1,8 @@
 import os
 import openai
 
+from collections import OrderedDict
+
 def analyze_sentiment(article):
     """
     Function to analyze the sentiment of an article using OpenAI's GPT API.
@@ -21,8 +23,8 @@ def analyze_sentiment(article):
     # Prepare the system message
     system_message = """This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. 
     Please format your response in this way: Nvidia: 6. 
-    The sentiment score can only be a positive integer between 1 and 10, where 1 means mixed sentiment and 10 means extremely positive sentiment.
-    If the company does not have positive sentiment, you will return 0. Please do not return a description."""
+    The sentiment score can only be a integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
+    Numbers around zero mean mixed sentiment. Please do not return a description."""
 
     # Prepare the user message (the article content)
     user_message = content
@@ -74,4 +76,3 @@ def analyze_sentiment(article):
         print(f"Could not process the model's response: {model_response}")
 
     return scores
-
