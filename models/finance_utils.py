@@ -83,10 +83,10 @@ def prepare_trades(sentiment_scores):
     trades_preparation = []
     for company, sentiment_score in sentiment_scores.items():
         symbol = get_symbol(company)
-        print(f"{company} symbol: {symbol}")  # Debugging line
+        #print(f"{company} symbol: {symbol}")  # Debugging line
         if symbol is not None:
             share_price = get_share_price(symbol)
-            print(f"{company} share price: {share_price}")  # Debugging line
+            #print(f"{company} share price: {share_price}")  # Debugging line
             trades_preparation.append({
                 'symbol': symbol,
                 'sentiment_score': sentiment_score,
