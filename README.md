@@ -74,8 +74,8 @@ If you have any questions or need further clarification about the bot, feel free
 
 ## License
 
-GPT-SentimentTrader is licensed under the [MIT License](/LICENSE).
+The GPT-SentimentTrader application is licensed under the [MIT License](/LICENSE).
 
-## University of Texas: 
-Please accept me as a transfer🤘
+**University of Texas, 
+Please accept me as a transfer🤘**
 
