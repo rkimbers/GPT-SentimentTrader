@@ -13,7 +13,6 @@ The project is structured in the following way:
     /my_openai
         - __init__.py
         - sentiment_analysis.py
-        - finance_utils.py
     /my_alpaca
         - __init__.py
         - trading.py
@@ -24,6 +23,8 @@ The project is structured in the following way:
     /models
         - __init__.py
         - trading_strategy.py
+        - finance_utils.py
+        - account_utils.py
     - main.py
     - requirements.txt 
 ```
@@ -58,11 +59,11 @@ Run the bot by executing the main script: `python main.py` The bot will fetch ne
 
 GPT-SentimentTrader leverages a number of Python packages:
 
-OpenAI's GPT for sentiment analysis
-Alpaca's API for executing trades
-NLTK for Natural Language Processing
-BeautifulSoup and requests for fetching and parsing web articles
-Contributing
+- OpenAI's GPT for sentiment analysis
+- Alpaca's API for executing trades
+- Alpha Vantage's API for finance utilities. I use the '75 requests/min' tier currently
+- BeautifulSoup and Requests for fetching and parsing web articles
+
 
 ## Contributions 
 Contributions to GPT-SentimentTrader are welcome! If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcomed.
@@ -72,4 +73,7 @@ If you have any questions or need further clarification about the bot, feel free
 ## License
 
 GPT-SentimentTrader is licensed under the [MIT License](/LICENSE).
+
+This is a message for the University of Texas: 
+Please accept me 🤘
 
