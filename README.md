@@ -4,7 +4,7 @@ GPT-SentimentTrader is a Python-based trading bot that employs sentiment analysi
 
 ## Project Overview
 
-The bot operates through a sequence of actions that include fetching articles from the internet, performing sentiment analysis using the GPT model, implementing a trading strategy based on the sentiment scores, and executing trades via the Alpaca API.
+The bot operates through a sequence of actions that include fetching articles from the internet, performing sentiment analysis using the GPT model, implementing a trading strategy based on the sentiment scores, and executing trades via the Alpaca Markets API.
 
 The project is structured in the following way:
 
@@ -31,14 +31,14 @@ The project is structured in the following way:
     
     
 ## Modules
-The different directories contain modules that fulfill specific functions within the bot:
+Each directory contains modules that fulfill specific functions within the bot:
 
 | Directory | Description |
 |-----------|-------------|
-| [my_openai](/my_openai)    | This directory contains the `sentiment_analysis.py` module, which interacts with OpenAI's GPT-3.5 API to analyze the sentiment of news articles. The `finance_utils.py` module uses the Alpha Vantage API to perform a ticker symbol search. |
+| [my_openai](/my_openai)    | This directory contains the `sentiment_analysis.py` module, which interacts with OpenAI's GPT-3.5 API to analyze the sentiment of news articles. |
 | [my_alpaca](/my_alpaca)    | The `trading.py` module in this directory manages all interactions with the Alpaca API. It is responsible for executing trading decisions made by the bot. |
 | [data](/data)        | This directory houses two modules. `fetch_articles.py` fetches articles from the internet, and `process_articles.py` preprocesses these articles to prepare them for sentiment analysis. |
-| [models](/models)    | The `trading_strategy.py` module in this directory implements the bot's trading strategy. It takes sentiment scores as input and outputs trading decisions based on these scores. |
+| [models](/models)    | This directory includes the `trading_strategy.py` module which implements the bot's trading strategy. Other dependency modules are housed here to act as support for preparing trades. |
 | [main.py](/main.py)  | The main script that ties all the modules together to enable the bot's functionality. |
 | [requirements.txt](/requirements.txt) | The file containing the list of dependencies and libraries required for the project. |
 
@@ -66,7 +66,9 @@ GPT-SentimentTrader leverages a number of Python packages:
 
 
 ## Contributions 
-Contributions to GPT-SentimentTrader are welcome! If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcomed.
+Contributions to GPT-SentimentTrader are welcome! If you'd like to contribute, please fork the repository and make changes as you'd like. 
+
+Pull requests are warmly welcomed.
 
 If you have any questions or need further clarification about the bot, feel free to open an issue to discuss what you would like to change or add.
 
