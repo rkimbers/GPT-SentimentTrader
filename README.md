@@ -76,6 +76,6 @@ If you have any questions or need further clarification about the bot, feel free
 
 GPT-SentimentTrader is licensed under the [MIT License](/LICENSE).
 
-This is a message for the University of Texas: 
-Please accept me 🤘
+## University of Texas: 
+Please accept me as a transfer🤘
 
