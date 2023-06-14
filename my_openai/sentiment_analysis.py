@@ -1,19 +1,9 @@
 import os
 import openai
 
-from collections import OrderedDict
+from collections import defaultdict
 
 def analyze_sentiment(article):
-    """
-    Function to analyze the sentiment of an article using OpenAI's GPT API.
-
-    Parameters:
-    article: A dictionary representing an article. It has a 'content' key.
-
-    Returns:
-    A dictionary with company name as key and sentiment score as value.
-    """
-
     # Use the OpenAI API key to authenticate
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -23,20 +13,20 @@ def analyze_sentiment(article):
     # Prepare the system message
     system_message = """This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. 
     Please format your response in this way: Nvidia: 6. 
-    The sentiment score can only be a integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
+    The sentiment score can only be an integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
     Numbers around zero mean mixed sentiment. Please do not return a description."""
 
     # Prepare the user message (the article content)
     user_message = content
     
-    #Suggestion prompt due to AI's inherent uncertainty
+    # Suggestion prompt due to AI's inherent uncertainty
     suggestion_prompt = "Nvidia: 6"
 
     # Define the messages for the chat
     messages = [
-    {"role": "system", "content": system_message},
-    {"role": "system", "content": suggestion_prompt},
-    {"role": "user", "content": user_message},
+        {"role": "system", "content": system_message},
+        {"role": "system", "content": suggestion_prompt},
+        {"role": "user", "content": user_message},
     ]
     # Send the chat messages to the GPT API and get the response
     response = openai.ChatCompletion.create(
@@ -50,7 +40,7 @@ def analyze_sentiment(article):
 
     print(model_response)
     # Process the response
-    scores = {}
+    scores = defaultdict(list)
     try:
         responses = model_response.split(",")  # Separate different company-score pairs
 
@@ -61,16 +51,12 @@ def analyze_sentiment(article):
                 # Handle format "CompanyName: sentiment score"
                 parts = response.split(":")
                 company = parts[0].strip()
-                
+
                 # We extract only the score which is the first integer after the ":".
                 sentiment_score = int(''.join(filter(str.isdigit, parts[1])))
 
-                # If the company is already in the scores dictionary, average the new score with the existing score
-                # Otherwise, add a new entry to the scores dictionary
-                if company in scores:
-                    scores[company] = (scores[company] + sentiment_score) / 2
-                else:
-                    scores[company] = sentiment_score
+                # Add the sentiment score to the list of scores for the company
+                scores[company].append(sentiment_score)
 
     except ValueError:
         print(f"Could not process the model's response: {model_response}")

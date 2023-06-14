@@ -2,8 +2,9 @@
 from operator import itemgetter
 from alpaca_trade_api import REST
 from alpaca.trading.client import TradingClient
-from finance_utils import get_symbol, get_share_price, prepare_trades, calculate_total_sentiment, translate_symbols
-from account_utils import account_value, portfolio_positions
+from .finance_utils import get_symbol, get_share_price, prepare_trades, calculate_total_sentiment
+from .finance_utils import compile_and_average_scores, translate_symbols
+from .account_utils import account_value, portfolio_positions
 from dotenv import load_dotenv
 from operator import itemgetter
 from math import floor
@@ -20,7 +21,7 @@ def prepare_buy_orders(sentiment_scores):
     order_cap = portfolio_value * 0.10
 
     # Translate sentiment_scores keys from company names to symbols
-    sentiment_scores = {get_symbol(k): v for k, v in sentiment_scores.items()}
+    sentiment_scores = {get_symbol(k): compile_and_average_scores(v) for k, v in sentiment_scores.items()}
 
     trades_preparation = prepare_trades(sentiment_scores)
     total_sentiment = calculate_total_sentiment(trades_preparation)
@@ -31,7 +32,12 @@ def prepare_buy_orders(sentiment_scores):
         weight = trade['sentiment_score'] / total_sentiment  # Calculate weight for each stock
         allocated_money = order_cap * weight  # Allocate money based on weight
 
-        qty = floor(allocated_money / trade['share_price'])  # Calculate quantity to buy
+        share_price = get_share_price(symbol)
+        if share_price is None:
+            print(f"Skipping trade preparation for {symbol} due to inability to retrieve share price.")
+            continue
+
+        qty = floor(allocated_money / share_price)  # Calculate quantity to buy
 
         trades_to_execute.append({
             'symbol': symbol,
@@ -41,7 +47,7 @@ def prepare_buy_orders(sentiment_scores):
             'time_in_force': 'gtc'
         })
 
-        order_cap -= qty * trade['share_price']
+        order_cap -= qty * share_price
 
     return trades_to_execute
 
@@ -51,8 +57,8 @@ def prepare_sell_orders(sentiment_scores):
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
-    # Translate sentiment_scores keys from company names to symbols
-    sentiment_scores = {get_symbol(k): v for k, v in sentiment_scores.items()}
+    # Translate sentiment_scores keys from company names to symbols and average the scores
+    sentiment_scores = {get_symbol(k): compile_and_average_scores(v) for k, v in sentiment_scores.items()}
     
     positions = portfolio_positions(trading_client)
 
@@ -75,8 +81,6 @@ def prepare_sell_orders(sentiment_scores):
                 })
 
     return sell_orders
-
-
 
 if __name__ == '__main__':
     load_dotenv()
