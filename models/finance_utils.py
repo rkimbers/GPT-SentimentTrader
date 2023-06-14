@@ -4,20 +4,26 @@ import os
 
 from typing import List, Dict
 
-def translate_symbols(positions: List[Dict]) -> List[Dict]:
-    translated_positions = []
-    for position in positions:
-        # Get ticker symbol for company name
-        ticker_symbol = get_symbol(position['symbol'])
+def compile_and_average_scores(score_lists):
 
-        # If a valid ticker symbol is returned, add it to the new position list
+    # Flatten the list of lists
+    flat_list = [score for sublist in score_lists for score in sublist]
+
+    # Calculate and return the average score
+    return sum(flat_list) / len(flat_list)
+
+
+def translate_symbols(scores_dict):
+    
+    translated_scores = {}
+
+    for company in scores_dict.keys():
+        ticker_symbol = get_symbol(company)
         if ticker_symbol:
-            translated_positions.append({
-                'symbol': ticker_symbol,
-                'qty': position['qty']
-            })
-            
-    return translated_positions
+            translated_scores[ticker_symbol] = scores_dict[company]
+
+    return translated_scores
+
 
 def get_symbol(company_name):
 
