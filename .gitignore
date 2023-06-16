@@ -19,5 +19,8 @@ venv/
 # Node JS shit
 package-lock.json
 
+#Ignored dependencies folder
+/dependencies
+
 # Articles for testing
-testing_articles.txt
+#testing_articles.txt
