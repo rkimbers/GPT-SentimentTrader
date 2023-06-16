@@ -36,8 +36,6 @@ def main():
                     sentiment_scores[k].append(v)
                 else:
                     sentiment_scores[k] = [v]
-
-    print(sentiment_scores)
     
     # Translate sentiment_scores keys from company names to symbols
     sentiment_scores = translate_symbols(sentiment_scores)
@@ -47,12 +45,14 @@ def main():
     sell_orders = prepare_sell_orders(sentiment_scores)
 
     # Print the orders
-    print(buy_orders)
-    print(sell_orders)
+    #print(buy_orders)
+    #print(sell_orders)
 
     # Step 3: Execute trades
     for order in buy_orders + sell_orders:
+        print(f"Submitting order: {order}")
         submit_order(order)
+
 
 if __name__ == "__main__":
     main()
