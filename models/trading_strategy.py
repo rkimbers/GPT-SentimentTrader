@@ -23,6 +23,9 @@ def prepare_buy_orders(sentiment_scores):
     # Translate sentiment_scores keys from company names to symbols
     sentiment_scores = {get_symbol(k): compile_and_average_scores(v) for k, v in sentiment_scores.items()}
 
+    # Filter out sentiment_scores with negative average scores
+    sentiment_scores = {k: v for k, v in sentiment_scores.items() if v > 0}
+
     trades_preparation = prepare_trades(sentiment_scores)
     total_sentiment = calculate_total_sentiment(trades_preparation)
     
@@ -50,6 +53,7 @@ def prepare_buy_orders(sentiment_scores):
         order_cap -= qty * share_price
 
     return trades_to_execute
+
 
 
 def prepare_sell_orders(sentiment_scores):
