@@ -1,5 +1,6 @@
 import os
 import openai
+import re
 
 from collections import defaultdict
 
@@ -39,10 +40,11 @@ def analyze_sentiment(article):
     model_response = response.choices[0].message.content.strip()
 
     print(model_response)
+
     # Process the response
     scores = defaultdict(list)
     try:
-        responses = model_response.split(",")  # Separate different company-score pairs
+        responses = re.split(",|\\.", model_response)  # Separate different company-score pairs by comma or period
 
         for response in responses:
             response = response.strip()  # Remove leading/trailing whitespace
@@ -53,7 +55,8 @@ def analyze_sentiment(article):
                 company = parts[0].strip()
 
                 # We extract only the score which is the first integer after the ":".
-                sentiment_score = int(''.join(filter(str.isdigit, parts[1])))
+                # This time, handle potential trailing period
+                sentiment_score = int(re.findall(r"-?\d+", parts[1].strip())[0])  # handle numbers with a trailing period
 
                 # Add the sentiment score to the list of scores for the company
                 scores[company].append(sentiment_score)
