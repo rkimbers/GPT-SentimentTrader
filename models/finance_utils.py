@@ -5,12 +5,12 @@ import os
 from typing import List, Dict
 
 def compile_and_average_scores(score_lists):
-
     # Flatten the list of lists
     flat_list = [score for sublist in score_lists for score in sublist]
 
     # Calculate and return the average score
     return sum(flat_list) / len(flat_list)
+
 
 
 def translate_symbols(scores_dict):
