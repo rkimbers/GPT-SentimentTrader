@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from urllib.parse import urlparse
 
 import requests
 import re
@@ -23,29 +24,58 @@ webdriver_service = Service('/usr/local/bin/chromedriver')
 # Choose Chrome Browser
 driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
 
-def fetch_article(url):
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0;Win64) AppleWebkit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
-    }
-    
+def is_valid_url(url):
     try:
-        # Make a request to the website
-        r = requests.get(url, headers=headers)
-        r.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        if r.status_code == 404:
-            print(f"Error 404: Page not found at {url}")
-        else:
-            print("HTTP Error:", errh)
-        return None
-    except requests.exceptions.RequestException as err:
-        print("Error occurred:", err)
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
+
+def fetch_article(url):
+    # Validate URL
+    if not is_valid_url(url):
+        print(f"Invalid URL: {url}")
         return None
 
-    # Return the raw HTML content of the article
-    return r.text
+    try:
+        # Setup Chrome options
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Ensure GUI is off
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
 
+        # Choose Chrome Browser
+        webdriver_service = Service(ChromeDriverManager().install())
+
+        driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+
+        driver.get(url)
+
+        # Wait for the page to load completely
+        time.sleep(5)
+
+        # Return the raw HTML content of the page
+        html = driver.page_source
+
+        driver.quit()
+        return html
+
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return None
+
+
+def fetch_articles():
+    article_urls_dict = {
+        "yahoo_finance": yf_fetch_articles(),
+        "reuters": reuters_fetch_articles(),
+        "investing_com": investing_com_fetch_articles(),
+        "bloomberg": bloomberg_fetch_articles(),
+        "market_watch": market_watch_fetch_articles(),
+        #"business_insider": business_insider_fetch_articles()
+    }
+    return article_urls_dict
 
 def yf_fetch_articles():
     base_url = "https://finance.yahoo.com"
@@ -140,8 +170,10 @@ def business_insider_fetch_articles():
 
     driver.get(business_insider_topic_url)
     
+    
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     # Wait for at least one article link to be present
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.top-story__link, a.instrument-stories__link")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.top-story__link, a.instrument-stories__link")))
 
     articles = driver.find_elements("css selector", "a.top-story__link, a.instrument-stories__link")
     article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
@@ -153,11 +185,13 @@ def business_insider_fetch_articles():
 
 
 if __name__ == '__main__':
+   
     # Fetch the articles from the given URLs
-    #print(yf_fetch_articles()) working
-    #print(reuters_fetch_articles())  working
-    #print(investing_com_fetch_articles()) working
-    #print(bloomberg_fetch_articles()) working
-    #print(market_watch_fetch_articles())  working
-    print(business_insider_fetch_articles())
+    print(yf_fetch_articles()) #working
+    print(reuters_fetch_articles()) #working
+    print(investing_com_fetch_articles()) #working
+    print(bloomberg_fetch_articles()) #working
+    print(market_watch_fetch_articles()) #working
+    #print(business_insider_fetch_articles())
+   
     driver.quit()
