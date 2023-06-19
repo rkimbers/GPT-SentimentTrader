@@ -3,8 +3,11 @@ from my_alpaca.trading import submit_order
 from data.fetch_articles import fetch_article, fetch_articles
 from data.process_articles import process_article  
 from models.trading_strategy import prepare_buy_orders, prepare_sell_orders
-from dotenv import load_dotenv
 from models.finance_utils import translate_symbols
+from my_twilio.messaging import send_order_text
+
+from dotenv import load_dotenv
+
 import os
 
 # Load environment variables
@@ -21,7 +24,7 @@ def main():
     # Fetch the URLs of the last 10 earnings articles from multiple sources
     urls_dict = fetch_articles()
 
-    # Initialize an empty dictionary to store the processed articles
+    # Initialize an empty dictionary to store the processed articles +
     # Fetch and process each article
     sentiment_scores = {}
     for source, urls in urls_dict.items():
@@ -39,15 +42,20 @@ def main():
 
     # Translate sentiment_scores keys from company names to symbols
     sentiment_scores = translate_symbols(sentiment_scores)
+    
+    print(sentiment_scores)
 
     # Step 2: Decide trades based on sentiment scores
     buy_orders = prepare_buy_orders(sentiment_scores)
     sell_orders = prepare_sell_orders(sentiment_scores)
 
-    # Step 3: Execute trades
+    # Step 3: Execute trades and send text messages
     for order in buy_orders + sell_orders:
         print(f"Submitting order: {order}")
         submit_order(order)
+
+        message_sid = send_order_text(order)
+        print(f"Sent text message with SID {message_sid}")
 
 if __name__ == "__main__":
     main()
