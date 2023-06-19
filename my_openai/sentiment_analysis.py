@@ -2,6 +2,7 @@ import os
 import openai
 import re
 
+from openai.error import RateLimitError
 from collections import defaultdict
 
 def analyze_sentiment(article):
@@ -29,12 +30,17 @@ def analyze_sentiment(article):
         {"role": "system", "content": suggestion_prompt},
         {"role": "user", "content": user_message},
     ]
+    
     # Send the chat messages to the GPT API and get the response
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # Using the gpt-3.5-turbo model
-        messages=messages,
-        max_tokens=1000,  # Same as DaVinci
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Using the gpt-3.5-turbo model
+            messages=messages,
+            max_tokens=1000,  # Same as DaVinci
+        )
+    except RateLimitError:
+        print("Hit rate limit, please try again later.")
+        return {}  # Return an empty dictionary to signify failure
 
     # The model's response will be in the message content of the last choice
     model_response = response.choices[0].message.content.strip()
