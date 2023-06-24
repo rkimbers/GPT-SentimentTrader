@@ -59,3 +59,4 @@ def submit_order(order):
             print(f"\"{property_name}\": {value}")
     except Exception as e:
         print(f"Failed to submit order for {symbol}. Error: {e}")
+
