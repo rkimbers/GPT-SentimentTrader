@@ -5,12 +5,20 @@ import os
 from typing import List, Dict
 
 def compile_and_average_scores(score_lists):
-    # Flatten the list of lists
-    flat_list = [score for sublist in score_lists for score in sublist]
+    # Check if score_lists is a single float (not subscriptable)
+    if isinstance(score_lists, float):
+        return score_lists
+
+    # Check if the first element is a list
+    elif isinstance(score_lists[0], list):
+        # Flatten the list of lists
+        flat_list = [score for sublist in score_lists for score in sublist]
+    else:
+        # If it's not a list of lists, it must be a list of floats
+        flat_list = score_lists
 
     # Calculate and return the average score
     return sum(flat_list) / len(flat_list)
-
 
 
 def translate_symbols(scores_dict):
