@@ -9,15 +9,18 @@ my_phone_number = os.getenv("MY_PHONE_NUMBER")  # Your personal phone number
 
 client = Client(twilio_account_sid, twilio_auth_token)
 
-def send_order_text(order):
+def send_order_text(orders):
     # Define the message content
-    message_content = (
-        f"Executed Order!:\n"
-        f"Symbol: {order['symbol']}\n"
-        f"Quantity: {order['qty']}\n"
-        f"Side: {order['side']}\n"
-        f"Type: {order['type']}\n"
-    )
+    message_content = "Executed Orders:\n"
+
+    for order in orders:
+        message_content += (
+            f"Symbol: {order['symbol']}\n"
+            f"Quantity: {order['qty']}\n"
+            f"Side: {order['side']}\n"
+            f"Type: {order['type']}\n"
+            "----------------------\n"
+        )
 
     message = client.messages.create(
         body=message_content,
@@ -27,4 +30,16 @@ def send_order_text(order):
 
     return message.sid
 
+def send_immediate_order_text(order):
+    # Get Twilio client
+    client = Client()
 
+    # Prepare the message
+    message_body = f"Immediate Order: {order}"
+
+    # Send the message
+    client.messages.create(
+        body=message_body,
+        from_='<Your Twilio Phone Number>',
+        to='<Your Phone Number>'
+    )
