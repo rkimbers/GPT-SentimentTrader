@@ -79,7 +79,7 @@ def fetch_articles():
 
 def yf_fetch_articles():
     base_url = "https://finance.yahoo.com"
-    topic_url = "https://finance.yahoo.com/topic/earnings"
+    topic_url = "https://finance.yahoo.com/most-active"
 
     response = requests.get(topic_url)
     soup = BeautifulSoup(response.text, 'html.parser')
