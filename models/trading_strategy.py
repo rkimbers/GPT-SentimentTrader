@@ -100,13 +100,19 @@ def prepare_sell_orders(sentiment_scores):
     return sell_orders
 
 
-def prepare_immediate_order(symbol, score, side):
+def prepare_immediate_order(company, score, side):
     ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
     portfolio_value = account_value()
-    order_cap = portfolio_value * 0.10
+    order_cap = portfolio_value * 0.01 #1% of portfolio value for immediate orders
+
+    # Translate company name to symbol
+    symbol = get_symbol(company)
+    if symbol is None:
+        print(f"Unable to translate company name to symbol for company: {company}")
+        return None
 
     # Obtain the current price of the stock
     share_price = get_share_price(symbol)
