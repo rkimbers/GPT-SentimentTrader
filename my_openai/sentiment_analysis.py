@@ -12,17 +12,25 @@ def analyze_sentiment(article):
     # Extract the article content
     content = article['content']
 
+    # Calculate the number of tokens in the content (approximate)
+    num_tokens = len(content) // 4  # one token ~= 4 characters
+
+    # Skip articles that are too long
+    if num_tokens > 4096:  # gpt-3.5-turbo has a maximum limit of 4096 tokens
+        print(f"Skipping article with {num_tokens} tokens.")
+        return {}
+
     # Prepare the system message
     system_message = """This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. 
     Please format your response in this way: Nvidia: 6. 
     The sentiment score can only be an integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
     Numbers around zero mean mixed sentiment. Please do not return a description."""
 
-    # Prepare the user message (the article content)
-    user_message = content
-    
     # Suggestion prompt due to AI's inherent uncertainty
     suggestion_prompt = "Nvidia: 6"
+
+    # Prepare the user message (the article content)
+    user_message = content
 
     # Define the messages for the chat
     messages = [
@@ -69,5 +77,7 @@ def analyze_sentiment(article):
 
     except ValueError:
         print(f"Could not process the model's response: {model_response}")
+        
+    # Calculate the average sentiment score for each company
 
     return scores
