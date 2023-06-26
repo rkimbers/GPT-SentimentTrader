@@ -108,3 +108,35 @@ def get_all_records():
     conn.close()
 
     return records
+
+def fetch_sentiment_scores_from_database():
+    # Connect to the database
+    conn = connect_db()
+    c = conn.cursor()
+
+    # Execute a query to get all records from the 'articles' table
+    c.execute("SELECT symbol, sentiment_score FROM articles;")
+
+    # Fetch all results
+    records = c.fetchall()
+
+    # Close the connection to the database
+    conn.close()
+
+    # Initialize an empty dictionary to store the sentiment scores
+    sentiment_scores = {}
+
+    # Go through each record
+    for record in records:
+        # Extract the company and sentiment score
+        company = record[0]
+        score = record[1]
+
+        # If the company is already in the dictionary, add the score to its list of scores
+        if company in sentiment_scores:
+            sentiment_scores[company].append(score)
+        # If the company is not in the dictionary, add a new entry with a list containing the score
+        else:
+            sentiment_scores[company] = [score]
+
+    return sentiment_scores

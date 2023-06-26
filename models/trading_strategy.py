@@ -36,7 +36,7 @@ def prepare_buy_orders(sentiment_scores):
             continue
 
         sentiment_scores[k] = score
-        save_url_to_database(k, score)  # Save the URL and the sentiment score to the database
+        #save_url_to_database(url, source, k, score)  # Save the URL and the sentiment score to the database
 
     # Translate sentiment_scores keys from company names to symbols
     sentiment_scores = {get_symbol(k): v for k, v in sentiment_scores.items()}
