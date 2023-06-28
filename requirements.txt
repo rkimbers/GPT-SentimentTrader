@@ -14,7 +14,7 @@ selenium
 beautifulsoup4
 openai
 requests
-aiohttp
+aiohttp==3.8.4
 python-dotenv
 alpaca-py
 twilio
