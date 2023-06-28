@@ -28,7 +28,7 @@ def process_article(source, url):
         "yahoo_finance": "caas-content",
         "reuters": "article-body__content__17Yit",
         "investing_com": "WYSIWYG articlePage",
-        "bloomberg": "body-content",  # Update this to the correct class for Bloomberg
+        "bloomberg": "body-content",  
         "market_watch": "article__content",
         #"business_insider": "news-content"
     }
