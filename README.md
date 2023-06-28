@@ -91,7 +91,7 @@ If you have any questions or need further clarification about the bot, feel free
 
 ## License
 
-The GPT-SentimentTrader application is licensed under the [MIT License](/LICENSE).
+The GPT-SentimentTrader application is licensed under the [GNU License](/LICENSE).
 
 ## Goals
 
