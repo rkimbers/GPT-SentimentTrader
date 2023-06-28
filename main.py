@@ -68,8 +68,8 @@ def fetch_and_analyze_articles():
 
                     # Prepare and submit an immediate order
                     for score in v:
-                        if abs(score) == 10:
-                            side = "buy" if score > 0 else "sell"
+                        if score == 10:
+                            side = "buy"
                             order = prepare_immediate_order(k, score, side)
                             if order is not None:
                                 print(f"Submitting immediate order: {order}")
