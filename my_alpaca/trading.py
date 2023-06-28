@@ -33,7 +33,7 @@ def submit_order(order):
     qty = order['qty']
     side = order['side']
     type_ = order['type']
-    time_in_force = order['time_in_force']
+    time_in_force = order['time_in_force']  
 
     # Change side to uppercase as it's expected by the SDK
     side = side.upper()
