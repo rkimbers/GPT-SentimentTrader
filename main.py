@@ -104,7 +104,7 @@ def perform_trades():
                 else:
                     successful_sell_orders.append(order)
 
-    # Send the successful orders as messages
+    # Send the successful orders as sms
     if successful_buy_orders:
         send_order_text(successful_buy_orders)
 
@@ -114,10 +114,10 @@ def perform_trades():
 
 #prompt user to view database tables
 def prompt_user():
-    # Use a queue to share data between threads
+    # Queue to share data between threads
     q = queue.Queue()
 
-    # This is the function that will run in a new thread
+    # This function will run in a new thread
     def get_user_input():
         user_input = input("Would you like to view all current tables in the database? (Yes/No): ")
         q.put(user_input)
@@ -135,7 +135,7 @@ def prompt_user():
         # Here we assume 'no' as default action if user does nothing
         user_input = "no"
     else:
-        # If the thread has finished get_user_input() has put something in the queue
+        # If the thread has finished, get_user_input() has put something in the queue
         user_input = q.get()
 
     if user_input.lower() == "yes":
