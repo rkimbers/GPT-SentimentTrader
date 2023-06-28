@@ -35,13 +35,13 @@ def translate_symbols(scores_dict):
 
 def get_symbol(company_name):
 
-    # Your Alpha Vantage API Key
+    # Load Alpha Vantage API key from OS
     API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
     
-    # The API endpoint
+    # Alpha Vantage SYMBOL SEARCH API endpoint
     BASE_URL = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH"
 
-    # The search parameters
+    # Search parameters
     params = {
         "keywords": company_name,
         "apikey": API_KEY
@@ -50,14 +50,15 @@ def get_symbol(company_name):
     # Send a GET request to the API
     response = requests.get(BASE_URL, params=params)
 
-    # Convert the response to JSON
+    # Convert the response to JSON 
     data = response.json()
 
-    # If there are no matches, return None
+    # Return None if no matches
     if not data.get('bestMatches'):
         return None
 
     # The response includes a list of matches. Loop over them to find the first match where the region is "United States".
+    # This is implemented because some of the results aren't on US exchanges
     for match in data['bestMatches']:
         if match['4. region'] == "United States":
             # This match is in the United States.
@@ -79,6 +80,7 @@ def get_share_price(ticker):
 
     # Parse the JSON response
     data = response.json()
+    
     # Ensure the response contains the key "Time Series (5min)"
     if "Time Series (5min)" in data:
         # Get the most recent timestamp

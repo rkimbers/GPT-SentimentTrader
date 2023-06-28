@@ -1,0 +1,14 @@
+# .dockerignore
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*~
+.env
+*.log
+*.sql
+.DS_Store
+.git
+.gitignore
+*.md
+LICENSE
