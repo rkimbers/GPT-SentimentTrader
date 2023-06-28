@@ -16,7 +16,7 @@ def analyze_sentiment(article):
     num_tokens = len(content) // 4  # one token ~= 4 characters
 
     # Skip articles that are too long
-    if num_tokens > 4096:  # gpt-3.5-turbo has a maximum limit of 4096 tokens
+    if num_tokens > 4096:  # current model (gpt-3.5-turbo) has a limit of 4096 tokens
         print(f"Skipping article with {num_tokens} tokens.")
         return {}
 
@@ -68,8 +68,8 @@ def analyze_sentiment(article):
                 parts = response.split(":")
                 company = parts[0].strip()
 
-                # We extract only the score which is the first integer after the ":".
-                # This time, handle potential trailing period
+                # Extract only the score which is the first integer after the ":"
+                # Handle potential trailing period
                 sentiment_score = int(re.findall(r"-?\d+", parts[1].strip())[0])  # handle numbers with a trailing period
 
                 # Add the sentiment score to the list of scores for the company
@@ -77,7 +77,5 @@ def analyze_sentiment(article):
 
     except ValueError:
         print(f"Could not process the model's response: {model_response}")
-        
-    # Calculate the average sentiment score for each company
 
     return scores
