@@ -2,12 +2,12 @@
 alpaca-trade-api==3.0.0
 selenium==4.10.0
 beautifulsoup4==4.12.2
-openai==0.27.7
+openai
 requests==2.31.0
 aiohttp==3.8.1
 python-dotenv==1.0.0
 alpaca-py==0.8.2
-twilio==8.3.0
+twilio
 
 #removed versions incase of version conflicts
 #alpaca-trade-api
