@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV NAME GPT-SentimentTrader
 
 # Run main.py when the container launches
-CMD ["python3", "main.py"]
+CMD ["python", "main.py"]
