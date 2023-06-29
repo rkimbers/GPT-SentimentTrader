@@ -9,15 +9,13 @@ env:
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
   ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
-  #ECS_TASK_DEFINITION: ${{ secrets.ECS_TASK_DEFINITION }}
-  #CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
 
 permissions:
   contents: read
 
 jobs:
   deploy:
-    name: Deploy
+    name: build-and-push
     runs-on: ubuntu-latest
 
     steps:
