@@ -20,9 +20,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Amazon ECR "Login" Action for GitHub Actions
+    - name: Login to Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-  
+
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:
