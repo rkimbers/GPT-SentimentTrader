@@ -1,6 +1,5 @@
 # file: trading_strategy.py
 from operator import itemgetter
-from alpaca_trade_api import REST
 from alpaca.trading.client import TradingClient
 from finance_utils import get_symbol, get_share_price, prepare_trades, calculate_total_sentiment
 from finance_utils import compile_and_average_scores, translate_symbols

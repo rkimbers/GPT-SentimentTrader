@@ -1,9 +1,6 @@
 # file: account_utils.py
 
 import os
-#import alpaca_trade_api as tradeapi
-
-#from alpaca_trade_api import REST
 from alpaca.trading.client import TradingClient
 
 
