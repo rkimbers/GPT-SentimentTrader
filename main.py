@@ -47,74 +47,84 @@ def main():
         
         
 def fetch_and_analyze_articles():
-    # Fetch the URLs of the last 10 earnings articles from multiple sources
-    urls_dict = fetch_articles()
+    
+    try:
+        
+        # Fetch the URLs of the last 10 earnings articles from multiple sources
+        urls_dict = fetch_articles()
 
-    # Initialize an empty dictionary to store the processed articles
-    sentiment_scores = {}
+        # Initialize an empty dictionary to store the processed articles
+        sentiment_scores = {}
 
-    for source, urls in urls_dict.items():
-        for url in urls:
-            # Check if this URL has been processed before
-            if check_url_in_database(url):  
-                print(f"The URL from '{source}' is already in the database.")
-                continue
+        for source, urls in urls_dict.items():
+            for url in urls:
+                # Check if this URL has been processed before
+                if check_url_in_database(url):  
+                    print(f"The URL from '{source}' is already in the database.")
+                    continue
 
-            processed_article = process_article(source, url)  
-            if processed_article is not None:  
-                # Analyze sentiment of each article and update sentiment_scores dictionary
-                scores = analyze_sentiment(processed_article)
-                for k, v in scores.items():
-                    if k in sentiment_scores:
-                        sentiment_scores[k].extend(v)
-                    else:
-                        sentiment_scores[k] = v
+                processed_article = process_article(source, url)  
+                if processed_article is not None:  
+                    # Analyze sentiment of each article and update sentiment_scores dictionary
+                    scores = analyze_sentiment(processed_article)
+                    for k, v in scores.items():
+                        if k in sentiment_scores:
+                            sentiment_scores[k].extend(v)
+                        else:
+                            sentiment_scores[k] = v
 
-                    # Prepare and submit an immediate order
-                    for score in v:
-                        if score == 10:
-                            side = "buy"
-                            order = prepare_immediate_order(k, score, side)
-                            if order is not None:
-                                print(f"Submitting immediate order: {order}")
-                                result = submit_order(order)
-                                if result:
-                                    send_immediate_order_text(order)
+                        # Prepare and submit an immediate order
+                        for score in v:
+                            if score == 10:
+                                side = "buy"
+                                order = prepare_immediate_order(k, score, side)
+                                if order is not None:
+                                    print(f"Submitting immediate order: {order}")
+                                    result = submit_order(order)
+                                    if result:
+                                        send_immediate_order_text(order)
 
-            # Save the URL to database
-            for company, score in scores.items():
-                save_url_to_database(url, source, company, score[0])
-
+                # Save the URL to database
+                for company, score in scores.items():
+                    save_url_to_database(url, source, company, score[0])
+                    
+    except Exception as e:
+        print(f"Exception occurred in fetch_and_analyze_articles: {e}")
 
 def perform_trades():
-    # Fetch the sentiment scores from the database
-    sentiment_scores = fetch_sentiment_scores_from_database() 
-
-    # Prepare buy and sell orders based on the sentiment scores
-    buy_orders = prepare_buy_orders(sentiment_scores)
-    sell_orders = prepare_sell_orders(sentiment_scores)
-
-    # Execute trades
-    successful_buy_orders = []
-    successful_sell_orders = []
     
-    for order in buy_orders + sell_orders:
-        if order is not None:
-            print(f"Submitting order: {order}")
-            result = submit_order(order)
-            if result:
-                if order['side'] == 'buy':
-                    successful_buy_orders.append(order)
-                else:
-                    successful_sell_orders.append(order)
+    try:
+        
+        # Fetch the sentiment scores from the database
+        sentiment_scores = fetch_sentiment_scores_from_database() 
 
-    # Send the successful orders as sms
-    if successful_buy_orders:
-        send_order_text(successful_buy_orders)
+        # Prepare buy and sell orders based on the sentiment scores
+        buy_orders = prepare_buy_orders(sentiment_scores)
+        sell_orders = prepare_sell_orders(sentiment_scores)
 
-    if successful_sell_orders:
-        send_order_text(successful_sell_orders)
+        # Execute trades
+        successful_buy_orders = []
+        successful_sell_orders = []
+        
+        for order in buy_orders + sell_orders:
+            if order is not None:
+                print(f"Submitting order: {order}")
+                result = submit_order(order)
+                if result:
+                    if order['side'] == 'buy':
+                        successful_buy_orders.append(order)
+                    else:
+                        successful_sell_orders.append(order)
 
+        # Send the successful orders as sms
+        if successful_buy_orders:
+            send_order_text(successful_buy_orders)
+
+        if successful_sell_orders:
+            send_order_text(successful_sell_orders)
+            
+    except Exception as e:
+        print(f"Exception occurred in perform_trades: {e}")
 
 def print_all_records():
     # Fetch all records from the database and pretty print them
