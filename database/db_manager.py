@@ -140,3 +140,13 @@ def fetch_sentiment_scores_from_database():
             sentiment_scores[company] = [score]
 
     return sentiment_scores
+
+def delete_all_records():
+    conn = connect_db()
+    c = conn.cursor()
+
+    # Execute a query to delete all records from the 'articles' table
+    c.execute("DELETE FROM articles;")
+
+    conn.commit()
+    conn.close()
