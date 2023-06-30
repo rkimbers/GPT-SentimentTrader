@@ -31,7 +31,7 @@ def main():
     
     #print_all_records()
     
-    # Schedule fetch_and_analyze_articles to run every 10 minutes
+    # Schedule fetch_and_analyze_articles to run every 5 minutes
     schedule.every(5).minutes.do(fetch_and_analyze_articles)
 
     # Schedule the task to be performed every Monday at market open (9:30 AM ET)
