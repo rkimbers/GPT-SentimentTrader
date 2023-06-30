@@ -84,35 +84,37 @@ def yf_fetch_articles():
 def reuters_fetch_articles():
     reuters_base_url = "https://www.reuters.com"
     reuters_topic_url = "https://www.reuters.com/business"
+    
+    with create_webdriver() as driver:
+        driver.get(reuters_topic_url)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-    driver.get(reuters_topic_url)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-    article_links = []
-    for link in soup.find_all('a', {'data-testid': 'Heading'}):
-        class_list = link.get('class')
-        if 'text__text__1FZLe' in class_list and 'text__dark-grey__3Ml43' in class_list and 'text__medium__1kbOh' in class_list:
-            href = link.get('href')
-            if href and href.startswith('/'):  # href could be a relative URL
-                article_links.append(reuters_base_url + href)
+        article_links = []
+        for link in soup.find_all('a', {'data-testid': 'Heading'}):
+            class_list = link.get('class')
+            if 'text__text__1FZLe' in class_list and 'text__dark-grey__3Ml43' in class_list and 'text__medium__1kbOh' in class_list:
+                href = link.get('href')
+                if href and href.startswith('/'):  # href could be a relative URL
+                    article_links.append(reuters_base_url + href)
+                    
     return article_links[:10]  # Return only the first 10 article URLs
-
 
 def investing_com_fetch_articles():
     investing_com_base_url = "https://www.investing.com"
     investing_com_topic_url = "https://www.investing.com/news/stock-market-news"
+    
+    with create_webdriver() as driver:
+        driver.get(investing_com_topic_url)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-    driver.get(investing_com_topic_url)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-    article_links = []
-    for article in soup.find_all('article', class_='js-article-item articleItem'):
-        link = article.find('a')
-        href = link.get('href')
-        if href:
-            article_links.append(investing_com_base_url + href)
+        article_links = []
+        for article in soup.find_all('article', class_='js-article-item articleItem'):
+            link = article.find('a')
+            href = link.get('href')
+            if href:
+                article_links.append(investing_com_base_url + href)
+                
     return article_links[:10]  # Return only the first 10 article URLs
-
 
 def bloomberg_fetch_articles():
     options = Options()
@@ -121,29 +123,29 @@ def bloomberg_fetch_articles():
     bloomberg_base_url = "https://www.bloomberg.com"
     bloomberg_topic_url = "https://www.bloomberg.com/markets"
 
-    driver = webdriver.Chrome(options=options)
-    driver.get(bloomberg_topic_url)
-
-    elements = driver.find_elements("css selector", "a[href*='/news/articles/']")
-    article_links = [element.get_attribute('href') for element in elements if element.get_attribute('href')]
-
+    with create_webdriver() as driver:
+        driver.get(bloomberg_topic_url)
+        elements = driver.find_elements("css selector", "a[href*='/news/articles/']")
+        article_links = [element.get_attribute('href') for element in elements if element.get_attribute('href')]
+        
     return article_links[:10]  # Return only the first 10 article URLs
-
 
 def market_watch_fetch_articles():
     market_watch_base_url = "https://www.marketwatch.com"
     market_watch_topic_url = "https://www.marketwatch.com/markets"
 
-    driver.get(market_watch_topic_url)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    with create_webdriver() as driver:
+        driver.get(market_watch_topic_url)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-    article_links = []
-    for article_div in soup.find_all('div', class_='article__content'):
-        headline = article_div.find('h3', class_='article__headline')
-        link = headline.find('a')
-        href = link.get('href')
-        if href:
-            article_links.append(href)
+        article_links = []
+        for article_div in soup.find_all('div', class_='article__content'):
+            headline = article_div.find('h3', class_='article__headline')
+            link = headline.find('a')
+            href = link.get('href')
+            if href:
+                article_links.append(href)
+
     return article_links[:10]  # Return only the first 10 article URLs
 
 
@@ -152,25 +154,19 @@ def business_insider_fetch_articles():
     business_insider_topic_url = "https://markets.businessinsider.com/news/stocks"
     
     options = Options()
-
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    driver.get(business_insider_topic_url)
-    
-    
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    # Wait for at least one article link to be present
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.top-story__link, a.instrument-stories__link")))
+    with create_webdriver() as driver:
+        driver.get(business_insider_topic_url)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # Wait for at least one article link to be present
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.top-story__link, a.instrument-stories__link")))
+        articles = driver.find_elements("css selector", "a.top-story__link, a.instrument-stories__link")
+        article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
 
-    articles = driver.find_elements("css selector", "a.top-story__link, a.instrument-stories__link")
-    article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
-    
     return article_links[:10]  # Return only the first 10 article URLs
-
-
-
 
 
 if __name__ == '__main__':
@@ -183,4 +179,4 @@ if __name__ == '__main__':
     print(market_watch_fetch_articles()) #working
     #print(business_insider_fetch_articles())
    
-    driver.quit()
+    #driver.quit()
