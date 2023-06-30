@@ -37,19 +37,19 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-    - name: Debug
-      run: echo "Image Tag - ${{ github.sha }}"
       
-    - name: Pull latest Docker image
-      run: |
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
           docker pull 892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
-            
-    - name: Run Docker container
-      run: |
-          docker run --env-file /home/ubuntu/.env \
-          -d -p 8080:80 \
-          892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
+          docker stop gpt-sentimenttrader || true
+          docker rm gpt-sentimenttrader || true
+          docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader 892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
+        
         
 
   
