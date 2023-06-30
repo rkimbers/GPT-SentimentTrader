@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
-from .fetch_articles import fetch_article
-from selenium import webdriver
+from .fetch_articles import fetch_article, create_webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import time
 import os
@@ -36,27 +38,23 @@ def process_article(source, url):
     if source == 'bloomberg':
         try:
             # Use Selenium for Bloomberg articles
-            driver_path = "/usr/local/bin/chromedriver"
-            driver = webdriver.Chrome(driver_path)
-            driver.get(url)
+            with create_webdriver() as driver:
+                driver.get(url)
 
-            # Fill out the email field and click the submit button
-            # Replace 'emailFieldId' and 'submitButtonId' with the actual ids
-            email_field = driver.find_element_by_id('input[type="email"]')
-            email_field.send_keys(email)
-            submit_button = driver.find_element_by_id('button[type="submit"]')
-            submit_button.click()
+                # Fill out the email field and click the submit button
+                # Replace 'input[type="email"]' and 'button[type="submit"]' with the actual selectors
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input[type="email"]'))).send_keys(email)
+                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button[type="submit"]'))).click()
 
-            # Wait for the page to load
-            time.sleep(3)  # Adjust this value based on your internet speed
+                # Wait for the page to load
+                time.sleep(3)  # Adjust this value based on your internet speed
 
-            # Extract the article content
-            content_div = driver.find_element_by_class_name(div_classes[source])
-            content = content_div.text
+                # Extract the article content
+                content_div = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, div_classes[source])))
+                content = content_div.text
 
-            driver.quit()
         except NoSuchElementException:
-            print(f"Failed to fetch or process article from Bloomberg at {url}. Please check the ids for email field and submit button.")
+            print(f"Failed to fetch or process article from Bloomberg at {url}. Please check the selectors for email field and submit button.")
             return None
         except Exception as e:
             print(f"An error occurred while processing the article from Bloomberg at {url}. Error message: {e}")

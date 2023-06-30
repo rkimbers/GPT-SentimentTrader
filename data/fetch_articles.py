@@ -1,19 +1,18 @@
 from bs4 import BeautifulSoup
+from contextlib import contextmanager
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
 from urllib.parse import urlparse
-
+import os
 import requests
-import re
 import time
 
 # Setup Chrome options
-chrome_options = webdriver.ChromeOptions()
+chrome_options = Options()
 chrome_options.add_argument("--headless")  # Ensure GUI is off
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
@@ -21,8 +20,11 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 # Chromedriver path
 webdriver_service = Service('/usr/local/bin/chromedriver')
 
-# Choose Chrome Browser
-driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+@contextmanager
+def create_webdriver():
+    driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+    yield driver
+    driver.quit()
 
 def is_valid_url(url):
     try:
@@ -31,7 +33,6 @@ def is_valid_url(url):
     except ValueError:
         return False
 
-
 def fetch_article(url):
     # Validate URL
     if not is_valid_url(url):
@@ -39,28 +40,16 @@ def fetch_article(url):
         return None
 
     try:
-        # Setup Chrome options
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Ensure GUI is off
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+        with create_webdriver() as driver:
+            driver.get(url)
 
-        # Choose Chrome Browser
-        webdriver_service = Service(ChromeDriverManager().install())
+            # Wait for the page to load completely
+            time.sleep(5)
 
-        driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+            # Return the raw HTML content of the page
+            html = driver.page_source
 
-        driver.get(url)
-
-        # Wait for the page to load completely
-        time.sleep(5)
-
-        # Return the raw HTML content of the page
-        html = driver.page_source
-
-        driver.quit()
         return html
-
     except Exception as e:
         print(f"Error occurred: {e}")
         return None
