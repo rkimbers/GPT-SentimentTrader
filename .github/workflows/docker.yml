@@ -40,13 +40,13 @@ jobs:
       
     - name: Pull latest Docker image
       run: |
-          docker pull 892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:$IMAGE_TAG
+          docker pull 892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ env.IMAGE_TAG }}
             
     - name: Run Docker container
       run: |
           docker run --env-file /home/ubuntu/.env \
           -d -p 8080:80 \
-          892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:$IMAGE_TAG
+          892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ env.IMAGE_TAG }}
         
 
   
