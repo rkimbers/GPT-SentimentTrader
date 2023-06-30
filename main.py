@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from models.finance_utils import translate_symbols
 from database.db_manager import connect_db, create_table, check_url_in_database, save_url_to_database
 from my_twilio.messaging import send_order_text, send_immediate_order_text
-from database.db_manager import fetch_sentiment_scores_from_database, get_all_records
+from database.db_manager import fetch_sentiment_scores_from_database, get_all_records, delete_all_records
 from pprint import pprint
 
 import threading
@@ -29,11 +29,15 @@ def main():
     
     #prompt_user()
     
+    print_all_records()
+    
     # Schedule fetch_and_analyze_articles to run every 10 minutes
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
 
     # Schedule the task to be performed every Monday at market open (9:30 AM ET)
     schedule.every().monday.at("09:30").do(perform_trades)
+    
+    schedule.every().monday.at("10:00").do(delete_all_records)
 
     while True:
         # Run pending tasks
@@ -110,6 +114,14 @@ def perform_trades():
 
     if successful_sell_orders:
         send_order_text(successful_sell_orders)
+
+
+def print_all_records():
+    # Fetch all records from the database and pretty print them
+    records = get_all_records()
+    print("\nContents of the 'articles' table at startup:")
+    pprint(records)
+    print("End of database content at startup.\n")
 
 
 #prompt user to view database tables
