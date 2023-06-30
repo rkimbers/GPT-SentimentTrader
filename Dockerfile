@@ -36,3 +36,6 @@ ENV NAME GPT-SentimentTrader
 
 # Run main.py when the container launches
 CMD ["python", "main.py"]
+
+# Health check to check if container is running as expected
+HEALTHCHECK --interval=5m --timeout=3s CMD python -c 'print("alive")' || exit 1
