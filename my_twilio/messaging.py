@@ -1,15 +1,18 @@
 from twilio.rest import Client
 import os
 
-# Twilio setup
-twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID")
-twilio_auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-twilio_phone_number = os.getenv("TWILIO_PHONE_NUMBER")  
-my_phone_number = os.getenv("MY_PHONE_NUMBER")  
-
-client = Client(twilio_account_sid, twilio_auth_token)
+def create_twilio_client():
+    twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    twilio_auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    return Client(twilio_account_sid, twilio_auth_token)
 
 def send_order_text(orders):
+    
+    client = create_twilio_client()
+    
+    twilio_phone_number = os.getenv("TWILIO_PHONE_NUMBER")  
+    my_phone_number = os.getenv("MY_PHONE_NUMBER")  
+    
     # Define the message content
     message_content = "Executed Orders!:\n"
 
@@ -32,6 +35,11 @@ def send_order_text(orders):
     return message.sid
 
 def send_immediate_order_text(order):
+    
+    client = create_twilio_client()
+    
+    twilio_phone_number = os.getenv("TWILIO_PHONE_NUMBER")  
+    my_phone_number = os.getenv("MY_PHONE_NUMBER")  
 
     # Construct the message body
     message_body = f"Immediate order submitted!: \n"
