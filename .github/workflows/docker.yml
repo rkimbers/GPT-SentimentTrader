@@ -45,11 +45,11 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          docker pull 892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
+          export AWS_REGION=${{ secrets.AWS_REGION }}
+          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID}}
+          AWS_LOGIN=$(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com)
+          docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
           docker stop gpt-sentimenttrader || true
           docker rm gpt-sentimenttrader || true
-          docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader 892435347324.dkr.ecr.us-east-1.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
-        
-        
-
-  
+          docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
+    
