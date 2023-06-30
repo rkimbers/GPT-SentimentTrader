@@ -50,9 +50,9 @@ jobs:
           AWS_LOGIN=$(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com)
           docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
           docker stop gpt-sentimenttrader || true
-          docker rm gpt-sentimenttrader || true
+          docker rm -f gpt-sentimenttrader || true
           docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
     
 
 
-          
+
