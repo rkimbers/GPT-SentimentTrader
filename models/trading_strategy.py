@@ -1,9 +1,9 @@
 # file: trading_strategy.py
 from operator import itemgetter
 from alpaca.trading.client import TradingClient
-from finance_utils import get_symbol, get_share_price, prepare_trades, calculate_total_sentiment
-from finance_utils import compile_and_average_scores, translate_symbols
-from account_utils import account_value, portfolio_positions
+from .finance_utils import get_symbol, get_share_price, prepare_trades, calculate_total_sentiment
+from .finance_utils import compile_and_average_scores, translate_symbols
+from .account_utils import account_value, portfolio_positions
 #from database.db_manager import check_url_in_database, save_url_to_database
 #from my_alpaca.trading import submit_order
 from dotenv import load_dotenv
