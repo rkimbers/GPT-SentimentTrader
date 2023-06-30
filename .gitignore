@@ -13,7 +13,7 @@ __pycache__/
 # VSCode settings
 .vscode/
 
-# Virtual environment
+# Virtual environment 
 venv/
 
 # Node JS shit
