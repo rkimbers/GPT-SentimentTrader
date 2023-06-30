@@ -9,6 +9,7 @@ python-dotenv==1.0.0
 alpaca-py==0.8.2
 twilio==8.3.0
 webdriver_manager==3.8.6
+schedule==1.2.0
 
 
 #removed versions incase of version conflicts

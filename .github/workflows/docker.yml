@@ -3,7 +3,7 @@ name: Deploy to Amazon ECS
 on:
   push:
     branches: [ main ]
-    
+
 permissions:
   contents: read
 
@@ -53,5 +53,5 @@ jobs:
           docker rm gpt-sentimenttrader || true
           docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
     
-          
+
 
