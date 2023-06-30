@@ -27,7 +27,7 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
 def main():
     
-    prompt_user()
+    #prompt_user()
     
     # Schedule fetch_and_analyze_articles to run every 10 minutes
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
