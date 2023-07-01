@@ -7,6 +7,9 @@ WORKDIR /app
 # Add the current directory contents into the container at /app
 ADD . /app
 
+# Create a new directory for data persistence
+RUN mkdir -p /app/data
+
 # Install needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -33,6 +36,7 @@ RUN CHROME_DRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_R
 
 # Define environment variable
 ENV NAME GPT-SentimentTrader
+ENV IN_DOCKER_CONTAINER=True
 
 # Run main.py when the container launches
 CMD ["python", "main.py"]
