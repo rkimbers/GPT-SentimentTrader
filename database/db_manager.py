@@ -10,6 +10,16 @@ else:
     DB_NAME = 'articles.db'
 
 def connect_db():
+    # Check if the code is running inside a Docker container
+    in_docker = os.environ.get('IN_DOCKER_CONTAINER')
+
+    if in_docker == "True":
+        DB_NAME = '/app/articles/articles.db'
+        print("You are containerized!")
+    else:
+        print("Local machine")
+        DB_NAME = 'articles.db'
+    
     try:
         return sqlite3.connect(DB_NAME)
     except sqlite3.Error as e:
