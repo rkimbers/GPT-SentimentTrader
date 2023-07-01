@@ -5,7 +5,7 @@ import sqlite3
 in_docker = os.environ.get('IN_DOCKER_CONTAINER')
 
 if in_docker == "True":
-    DB_NAME = '/app/data/articles.db'
+    DB_NAME = '/app/articles/articles.db'
 else:
     DB_NAME = 'articles.db'
 

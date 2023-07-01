@@ -8,7 +8,7 @@ WORKDIR /app
 ADD . /app
 
 # Create a new directory for data persistence
-RUN mkdir -p /app/data
+RUN mkdir -p /app/articles
 
 # Install needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
