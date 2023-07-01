@@ -12,3 +12,4 @@
 .gitignore
 *.md
 LICENSE
+articles.db
