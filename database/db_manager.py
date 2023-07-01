@@ -1,6 +1,13 @@
+import os
 import sqlite3
 
-DB_NAME = 'articles.db'
+# Check if the code is running inside a Docker container
+in_docker = os.environ.get('IN_DOCKER_CONTAINER')
+
+if in_docker == "True":
+    DB_NAME = '/app/data/articles.db'
+else:
+    DB_NAME = 'articles.db'
 
 def connect_db():
     return sqlite3.connect(DB_NAME)
