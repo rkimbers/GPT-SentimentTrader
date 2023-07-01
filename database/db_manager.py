@@ -55,6 +55,8 @@ def save_url_to_database(url, source, symbol, sentiment_score):
 
     conn.commit()
     conn.close()
+    
+    print(f"New entry succssfully added: url - {url}, source - {source}, symbol - {symbol}, sentiment_score - {sentiment_score}")
 
 def create_table_if_not_exists():
     conn = connect_db()
