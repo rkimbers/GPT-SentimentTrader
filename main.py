@@ -31,6 +31,8 @@ def main():
     
     #print_all_records()
     
+    fetch_and_analyze_articles()
+    
     # Schedule fetch_and_analyze_articles to run every 10 minutes
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
 
