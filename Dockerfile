@@ -39,7 +39,10 @@ ENV NAME GPT-SentimentTrader
 ENV IN_DOCKER_CONTAINER=True
 
 # Run main.py when the container launches
-CMD ["python", "main.py"]
+#CMD ["python", "main.py"]
+
+# Run main.py when the container launches - unbuffered
+CMD ["python", "-u", "main.py"]
 
 # Health check to check if container is running as expected
-HEALTHCHECK --interval=5m --timeout=3s CMD python -c 'print("alive")' || exit 1
+#HEALTHCHECK --interval=5m --timeout=3s CMD python -c 'print("alive")' || exit 1
