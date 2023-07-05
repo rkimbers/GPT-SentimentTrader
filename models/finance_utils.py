@@ -97,18 +97,28 @@ def get_share_price(ticker):
 
 def prepare_trades(sentiment_scores):
     trades_preparation = []
-    for company, sentiment_score in sentiment_scores.items():
+    for company, sentiment_scores_list in sentiment_scores.items():
+        #print(f"Preparing trades for {company}...")
         symbol = get_symbol(company)
-        #print(f"{company} symbol: {symbol}")  # Debugging line
         if symbol is not None:
             share_price = get_share_price(symbol)
-            #print(f"{company} share price: {share_price}")  # Debugging line
+            if share_price is None:
+                print(f"Unable to get price for ticker {symbol} ({company}).")
+                continue
+            
+            # Calculate the average sentiment score using the new function
+            avg_sentiment_score = compile_and_average_scores(sentiment_scores_list)
+
             trades_preparation.append({
                 'symbol': symbol,
-                'sentiment_score': sentiment_score,
+                'sentiment_score': avg_sentiment_score,
                 'share_price': share_price,
             })
+        else:
+            print(f"Unable to find symbol for company {company}.")
     return trades_preparation
+
+
 
 
 def calculate_total_sentiment(trades_preparation):
