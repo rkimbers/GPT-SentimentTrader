@@ -1,9 +1,13 @@
 import os
 import openai
 import re
+import logging
 
-from openai.error import RateLimitError
+from openai.error import OpenAIError, RateLimitError
 from collections import defaultdict
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 def analyze_sentiment(article):
     # Use the OpenAI API key to authenticate
@@ -17,14 +21,11 @@ def analyze_sentiment(article):
 
     # Skip articles that are too long
     if num_tokens > 4096:  # current model (gpt-3.5-turbo) has a limit of 4096 tokens
-        print(f"Skipping article with {num_tokens} tokens.")
+        logging.info(f"Skipping article with {num_tokens} tokens.")
         return {}
 
     # Prepare the system message
-    system_message = """This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. 
-    Please format your response in this way: Airbus: 6. 
-    The sentiment score can only be an integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
-    Numbers around zero mean mixed sentiment. DO NOT return a description."""
+    system_message = """This is a news article sentiment analysis model..."""
 
     # Suggestion prompt due to AI's inherent uncertainty
     suggestion_prompt = "Airbus: 6"
@@ -47,13 +48,16 @@ def analyze_sentiment(article):
             max_tokens=1000,  # Same as DaVinci
         )
     except RateLimitError:
-        print("Hit rate limit, please try again later.")
+        logging.error("Hit rate limit, please try again later.")
         return {}  # Return an empty dictionary to signify failure
+    except OpenAIError as e:
+        logging.error(f"OpenAI error: {e}")
+        return {}
 
     # The model's response will be in the message content of the last choice
     model_response = response.choices[0].message.content.strip()
 
-    print(model_response)
+    logging.info(model_response)
 
     # Process the response
     scores = defaultdict(list)
@@ -64,18 +68,14 @@ def analyze_sentiment(article):
             response = response.strip()  # Remove leading/trailing whitespace
 
             if ":" in response:
-                # Handle format "CompanyName: sentiment score"
                 parts = response.split(":")
                 company = parts[0].strip()
 
-                # Extract only the score which is the first integer after the ":"
-                # Handle potential trailing period
                 sentiment_score = int(re.findall(r"-?\d+", parts[1].strip())[0])  # handle numbers with a trailing period
 
-                # Add the sentiment score to the list of scores for the company
                 scores[company].append(sentiment_score)
 
     except ValueError:
-        print(f"Could not process the model's response: {model_response}")
+        logging.error(f"Could not process the model's response: {model_response}")
 
     return scores
