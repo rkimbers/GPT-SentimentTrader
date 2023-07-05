@@ -25,5 +25,9 @@ package-lock.json
 # Article database
 articles.db
 
+# DS store
+.DS_Store
+
+
 # Articles for testing
 #testing_articles.txt
