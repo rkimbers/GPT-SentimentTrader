@@ -28,6 +28,7 @@ articles.db
 # DS store
 .DS_Store
 
-
+# Debugging logs
+debug.log
 # Articles for testing
 #testing_articles.txt

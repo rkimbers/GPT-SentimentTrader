@@ -13,3 +13,4 @@
 *.md
 LICENSE
 articles.db
+debug.log
