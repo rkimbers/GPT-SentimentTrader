@@ -39,9 +39,9 @@ def main():
     
     print_all_records()
     
-    delete_all_records()
+    #delete_all_records()
         
-    fetch_and_analyze_articles()
+    #fetch_and_analyze_articles()
 
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
     schedule.every().monday.at("09:30").do(perform_trades)
