@@ -23,10 +23,13 @@ def analyze_sentiment(article):
         return {}
 
     # Prepare the system message
-    system_message = """This is a news article sentiment analysis model..."""
+    system_message = """This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. 
+    Please format your response in this way: (replace with company's name): (sentiment score integer). 
+    The sentiment score can only be an integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
+    Numbers around zero mean mixed sentiment. DO NOT return a description. If no company is found, please state that no company is found."""
 
     # Suggestion prompt due to AI's inherent uncertainty
-    suggestion_prompt = "Airbus: 6"
+    suggestion_prompt = "Company: 6"
 
     # Prepare the user message (the article content)
     user_message = content
@@ -43,7 +46,8 @@ def analyze_sentiment(article):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",  # Using the gpt-3.5-turbo model
             messages=messages,
-            max_tokens=1000,  # Same as DaVinci
+            max_tokens=1000,
+            temperature=0.2# Same as DaVinci
         )
     except RateLimitError:
         logging.error("Hit rate limit, please try again later.")
