@@ -22,12 +22,12 @@ def analyze_sentiment(article):
 
     # Prepare the system message
     system_message = """This is a news article sentiment analysis model. It identifies companies and associated sentiment from news articles. 
-    Please format your response in this way: Nvidia: 6. 
+    Please format your response in this way: Airbus: 6. 
     The sentiment score can only be an integer between -10 and 10, where -10 means extremely negative sentiment and 10 means extremely positive sentiment. 
     Numbers around zero mean mixed sentiment. DO NOT return a description."""
 
     # Suggestion prompt due to AI's inherent uncertainty
-    suggestion_prompt = "Nvidia: 6"
+    suggestion_prompt = "Airbus: 6"
 
     # Prepare the user message (the article content)
     user_message = content
