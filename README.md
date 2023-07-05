@@ -33,7 +33,6 @@ The project is structured in the following way:
     - requirements.txt 
     - Dockerfile
     - LICENSE
-    - articles.db
 ```
     
     
@@ -50,7 +49,6 @@ Each directory contains modules that fulfill specific functions within the bot:
 | [models](/models)                     | This directory includes the `trading_strategy.py`, `finance_utils.py`, and the `account_utils.py` modules which house the bot's trading strategy, and provide utility getter functions for other areas of the applicaion. |
 | [main.py](/main.py)                   | The main script that ties all the modules together to enable the bot's functionality. |
 | [requirements.txt](/requirements.txt) | The file containing the list of dependencies and libraries required for the project. |
-| [articles.db](/articles.db)           | GPT-SentimentTrader's database for storing article data. |
 | [Dockerfile](/Dockerfile)             | The Dockerfile containing instructions to build this application to a container. |
 | [License](/LICENSE)                   | Self explanitory. More details about GPT-SentimentTrader's license below. |
 
