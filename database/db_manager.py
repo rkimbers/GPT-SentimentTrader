@@ -14,10 +14,10 @@ def connect_db():
     in_docker = os.environ.get('IN_DOCKER_CONTAINER')
 
     if in_docker == "True":
-        DB_NAME = '/app/articles/articles.db'
+        #DB_NAME = '/app/articles/articles.db'
         print("You are containerized!")
     else:
-        print("Local machine")
+        #print("Local machine")
         DB_NAME = 'articles.db'
     
     try:
@@ -114,6 +114,7 @@ def delete_all_records():
     except sqlite3.Error as e:
         print(f"Error deleting all records from database: {e}")
     finally:
+        print("Deleted all contents from table articles")
         conn.close()
 
 def get_all_records():
