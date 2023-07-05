@@ -1,20 +1,24 @@
+# file: main.py
 from my_openai.sentiment_analysis import analyze_sentiment
 from my_alpaca.trading import submit_order
-from data.fetch_articles import fetch_article, fetch_articles
+from data.fetch_articles import fetch_articles
 from data.process_articles import process_article  
 from models.trading_strategy import prepare_buy_orders, prepare_sell_orders, prepare_immediate_order
-from dotenv import load_dotenv
-from models.finance_utils import translate_symbols
-from database.db_manager import connect_db, create_table, check_url_in_database, save_url_to_database
+from database.db_manager import create_table, check_url_in_database, save_url_to_database
 from my_twilio.messaging import send_order_text, send_immediate_order_text
 from database.db_manager import fetch_sentiment_scores_from_database, get_all_records, delete_all_records
+from my_twilio.messaging import send_market_open_message
+from dotenv import load_dotenv
 from pprint import pprint
-
 import threading
 import schedule 
 import queue
 import os
 import time
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
 load_dotenv()
@@ -24,158 +28,119 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
-
 def main():
-    
-    #prompt_user()
-    
-    #print_all_records()
-    
     create_table()
-    
-    fetch_and_analyze_articles()
-    
-    # Schedule fetch_and_analyze_articles to run every 10 minutes
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
-
-    # Schedule the task to be performed every Monday at market open (9:30 AM ET)
     schedule.every().monday.at("09:30").do(perform_trades)
-    
     schedule.every().monday.at("10:00").do(delete_all_records)
 
     while True:
-        # Run pending tasks
         schedule.run_pending()
-        # Sleep for a while before checking for pending tasks again
         time.sleep(60)
-        
-        
+
 def fetch_and_analyze_articles():
-    
-    print("Starting fetch_and_analyze_articles()")
-    
+    logging.info("Starting fetch_and_analyze_articles()")
+
     try:
-        
-        # Fetch the URLs of the last 10 earnings articles from multiple sources
         urls_dict = fetch_articles()
-
-        # Initialize an empty dictionary to store the processed articles
         sentiment_scores = {}
-
         for source, urls in urls_dict.items():
             for url in urls:
-                # Check if this URL has been processed before
                 if check_url_in_database(url):  
-                    print(f"The URL from '{source}' is already in the database.")
+                    logging.info(f"The URL from '{source}' is already in the database.")
                     continue
-
                 processed_article = process_article(source, url)  
                 if processed_article is not None:  
-                    # Analyze sentiment of each article and update sentiment_scores dictionary
                     scores = analyze_sentiment(processed_article)
                     for k, v in scores.items():
                         if k in sentiment_scores:
                             sentiment_scores[k].extend(v)
                         else:
                             sentiment_scores[k] = v
-
-                        # Prepare and submit an immediate order
                         for score in v:
                             if score == 10:
                                 side = "buy"
                                 order = prepare_immediate_order(k, score, side)
                                 if order is not None:
-                                    print(f"Submitting immediate order: {order}")
+                                    logging.info(f"Submitting immediate order: {order}")
                                     result = submit_order(order)
                                     if result:
-                                        send_immediate_order_text(order)
-
-                # Save the URL to database
+                                        try:
+                                            send_immediate_order_text(order)
+                                        except Exception as e:
+                                            logging.error(f"Failed to send immediate order text: {e}")
                 for company, score in scores.items():
-                    save_url_to_database(url, source, company, score[0])
+                    try:
+                        save_url_to_database(url, source, company, score[0])
+                    except Exception as e:
+                        logging.error(f"Failed to save URL to database: {e}")
                     
     except Exception as e:
-        print(f"Exception occurred in fetch_and_analyze_articles: {e}")
+        logging.error(f"Exception occurred in fetch_and_analyze_articles: {e}")
 
 def perform_trades():
-    
+    successful_buy_orders = []
+    successful_sell_orders = []
     try:
-        
-        # Fetch the sentiment scores from the database
-        sentiment_scores = fetch_sentiment_scores_from_database() 
-
-        # Prepare buy and sell orders based on the sentiment scores
+        sentiment_scores = fetch_sentiment_scores_from_database()
         buy_orders = prepare_buy_orders(sentiment_scores)
         sell_orders = prepare_sell_orders(sentiment_scores)
-
-        # Execute trades
-        successful_buy_orders = []
-        successful_sell_orders = []
-        
+        buy_orders = [order for order in buy_orders if order['qty'] > 0]
+        sell_orders = [order for order in sell_orders if order['qty'] > 0]
         for order in buy_orders + sell_orders:
-            if order is not None:
-                print(f"Submitting order: {order}")
-                result = submit_order(order)
-                if result:
-                    if order['side'] == 'buy':
-                        successful_buy_orders.append(order)
-                    else:
-                        successful_sell_orders.append(order)
-
-        # Send the successful orders as sms
-        if successful_buy_orders:
-            send_order_text(successful_buy_orders)
-
-        if successful_sell_orders:
-            send_order_text(successful_sell_orders)
-            
+            logging.info(f"Submitting order: {order}")
+            result = submit_order(order)
+            if result:
+                if order['side'] == 'buy':
+                    successful_buy_orders.append(order)
+                else:
+                    successful_sell_orders.append(order)
+        try:
+            if successful_buy_orders:
+                send_order_text(successful_buy_orders)
+        except Exception as e:
+            logging.error(f"Exception occurred when sending buy orders text: {e}")
+        try:
+            if successful_sell_orders:
+                send_order_text(successful_sell_orders)
+        except Exception as e:
+            logging.error(f"Exception occurred when sending sell orders text: {e}")
     except Exception as e:
-        print(f"Exception occurred in perform_trades: {e}")
+        logging.error(f"Exception occurred in perform_trades: {e}")
+    finally:
+        if successful_buy_orders or successful_sell_orders:
+            send_market_open_message("trades_executed")
+        else:
+            send_market_open_message("no_trades")
 
 def print_all_records():
-    # Fetch all records from the database and pretty print them
     records = get_all_records()
-    print("\nContents of the 'articles' table at startup:")
-    pprint(records)
-    print("End of database content at startup.\n")
+    logging.info("\nContents of the 'articles' table at startup:")
+    logging.info(pprint(records))
+    logging.info("End of database content at startup.\n")
 
-
-#prompt user to view database tables
 def prompt_user():
-    # Queue to share data between threads
     q = queue.Queue()
-
-    # This function will run in a new thread
     def get_user_input():
         user_input = input("Would you like to view all current tables in the database? (Yes/No): ")
         q.put(user_input)
-
-    # Start a thread that will run the get_user_input function
     thread = threading.Thread(target=get_user_input)
     thread.start()
-
-    # Wait for 10 seconds or until the user enters their input
     thread.join(timeout=10)
-
-    # Check if thread is still active
     if thread.is_alive():
-        print("\nNo response. Continuing...")
-        # Here we assume 'no' as default action if user does nothing
+        logging.info("\nNo response. Continuing...")
         user_input = "no"
     else:
-        # If the thread has finished, get_user_input() has put something in the queue
         user_input = q.get()
-
     if user_input.lower() == "yes":
-        # Fetch all records from the database and pretty print them
         records = get_all_records()
-        print("\nContents of the 'articles' table:")
-        pprint(records)
-        print("End of database. Confinuting...")
+        logging.info("\nContents of the 'articles' table:")
+        logging.info(pprint(records))
+        logging.info("End of database. Continuing...")
     elif user_input.lower() == "no":
-        print("Continuing without displaying tables.")
+        logging.info("Continuing without displaying tables.")
     else:
-        print("Invalid input. Continuing with default action.")
+        logging.error("Invalid input. Continuing with default action.")
         
 if __name__ == "__main__":
     main()
