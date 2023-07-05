@@ -10,8 +10,6 @@ from math import floor
 import os
 import logging
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
 
 def prepare_buy_orders(sentiment_scores):
     ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")

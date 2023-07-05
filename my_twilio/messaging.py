@@ -4,8 +4,6 @@ import concurrent.futures
 import os
 import logging
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
 
 def create_twilio_client():
     twilio_account_sid = os.getenv("TWILIO_ACCOUNT_SID")

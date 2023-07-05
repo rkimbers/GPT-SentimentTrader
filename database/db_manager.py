@@ -1,5 +1,7 @@
 import os
 import sqlite3
+import logging
+
 
 # Check if the code is running inside a Docker container
 in_docker = os.environ.get('IN_DOCKER_CONTAINER')
@@ -10,20 +12,10 @@ else:
     DB_NAME = 'articles.db'
 
 def connect_db():
-    # Check if the code is running inside a Docker container
-    in_docker = os.environ.get('IN_DOCKER_CONTAINER')
-
-    if in_docker == "True":
-        #DB_NAME = '/app/articles/articles.db'
-        print("You are containerized!")
-    else:
-        #print("Local machine")
-        DB_NAME = 'articles.db'
-    
     try:
         return sqlite3.connect(DB_NAME)
     except sqlite3.Error as e:
-        print(f"Error connecting to database: {e}")
+        logging.error(f"Error connecting to database: {e}")
         return None
 
 def create_table():
@@ -43,7 +35,7 @@ def create_table():
         ''')
         conn.commit()
     except sqlite3.Error as e:
-        print(f"Error creating table: {e}")
+        logging.error(f"Error creating table: {e}")
     finally:
         conn.close()
 
@@ -57,14 +49,14 @@ def check_url_in_database(url):
         result = c.fetchone()
         return result is not None
     except sqlite3.Error as e:
-        print(f"Error querying database: {e}")
+        logging.error(f"Error querying database: {e}")
         return False
     finally:
         conn.close()
 
 def save_url_to_database(url, source, symbol, sentiment_score):
     if check_url_in_database(url):
-        print(f"URL {url} already exists in the database. Skipping...")
+        logging.info(f"URL {url} already exists in the database. Skipping...")
         return
     conn = connect_db()
     if conn is None:
@@ -75,9 +67,9 @@ def save_url_to_database(url, source, symbol, sentiment_score):
                   (url, source, symbol, sentiment_score))
         conn.commit()
     except sqlite3.IntegrityError:
-        print(f"Duplicated URL {url}. Skipping...")
+        logging.info(f"Duplicated URL {url}. Skipping...")
     except sqlite3.Error as e:
-        print(f"Error saving URL to database: {e}")
+        logging.error(f"Error saving URL to database: {e}")
     finally:
         conn.close()
 
@@ -98,7 +90,7 @@ def fetch_sentiment_scores_from_database():
             else:
                 sentiment_scores[company] = [score]
     except sqlite3.Error as e:
-        print(f"Error fetching sentiment scores from database: {e}")
+        logging.error(f"Error fetching sentiment scores from database: {e}")
     finally:
         conn.close()
     return sentiment_scores
@@ -112,9 +104,9 @@ def delete_all_records():
         c.execute("DELETE FROM articles;")
         conn.commit()
     except sqlite3.Error as e:
-        print(f"Error deleting all records from database: {e}")
+        logging.error(f"Error deleting all records from database: {e}")
     finally:
-        print("Deleted all contents from table articles")
+        logging.info("Deleted all contents from table articles")
         conn.close()
 
 def get_all_records():
@@ -127,7 +119,7 @@ def get_all_records():
         c.execute("SELECT * FROM articles;")
         records = c.fetchall()
     except sqlite3.Error as e:
-        print(f"Error getting all records from database: {e}")
+        logging.error(f"Error getting all records from database: {e}")
     finally:
         conn.close()
     return records

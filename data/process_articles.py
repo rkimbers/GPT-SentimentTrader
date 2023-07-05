@@ -1,24 +1,25 @@
+import os
+import time
 import datetime
+import logging
 from bs4 import BeautifulSoup
-from .fetch_articles import fetch_article, create_webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-import time
-import os
+from .fetch_articles import fetch_article, create_webdriver
+
 
 def process_article(source, url, retries=3):
     email = os.getenv("EMAIL")
-    
-    print(f"[{datetime.datetime.now()}] Starting process_article function for {source}...")
+    logging.info(f"[{datetime.datetime.now()}] Starting process_article function for {source}...")
 
     div_classes = {
         "yahoo_finance": "caas-content",
         "reuters": "article-body__content__17Yit",
         "investing_com": "WYSIWYG articlePage",
-        "bloomberg": "body-content",  
+        "bloomberg": "body-content",
         "market_watch": "article__content",
     }
 
@@ -35,20 +36,20 @@ def process_article(source, url, retries=3):
             else:
                 raw_article = fetch_article(url)
                 if raw_article is None:
-                    print(f"[{datetime.datetime.now()}] Failed to fetch article from {url}")
+                    logging.error(f"[{datetime.datetime.now()}] Failed to fetch article from {url}")
                     return None
                 soup = BeautifulSoup(raw_article, 'html.parser')
                 content_div = soup.find('div', {'class': div_classes[source]})
                 if content_div is None:
-                    print(f"[{datetime.datetime.now()}] Warning: Could not find content div in article from {source}.")
+                    logging.warning(f"[{datetime.datetime.now()}] Warning: Could not find content div in article from {source}.")
                     return None
                 content = content_div.text.strip()
 
             return {'content': content}
 
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] An error occurred on attempt {i+1} of {retries} while processing the article from {source} at {url}. Error message: {e}")
+            logging.error(f"[{datetime.datetime.now()}] An error occurred on attempt {i+1} of {retries} while processing the article from {source} at {url}. Error message: {e}")
             time.sleep(1)  # You can adjust this delay
 
-    print(f"[{datetime.datetime.now()}] Failed to process article from {source} at {url} after {retries} attempts")
+    logging.error(f"[{datetime.datetime.now()}] Failed to process article from {source} at {url} after {retries} attempts")
     return None

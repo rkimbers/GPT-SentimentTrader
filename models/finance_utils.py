@@ -4,8 +4,6 @@ import os
 import logging
 from typing import List, Dict
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
 
 def compile_and_average_scores(score_lists):
     # Check if score_lists is a single float (not subscriptable)

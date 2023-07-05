@@ -6,8 +6,6 @@ import logging
 from openai.error import OpenAIError, RateLimitError
 from collections import defaultdict
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
 
 def analyze_sentiment(article):
     # Use the OpenAI API key to authenticate

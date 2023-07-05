@@ -1,4 +1,10 @@
+import os
+import time
+import requests
+import datetime
+import logging
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 from contextlib import contextmanager
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -6,12 +12,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from urllib.parse import urlparse
 from selenium.common.exceptions import WebDriverException
-import os
-import requests
-import time
-import datetime
 
 # Setup Chrome options
 chrome_options = Options()
@@ -24,20 +25,21 @@ webdriver_service = Service('/usr/local/bin/chromedriver')
 
 @contextmanager
 def create_webdriver(retries=5):
+    driver = None
     for i in range(retries):
         try:
             driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
             yield driver
         except WebDriverException as e:
-            print(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
+            logging.error(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
             if i < retries - 1:  # i is zero indexed
                 time.sleep(1)  # You can adjust this delay
                 continue
             else:
                 raise
         finally:
-            driver.quit()
-
+            if driver:
+                driver.quit()
 
 def is_valid_url(url):
     try:
@@ -49,26 +51,24 @@ def is_valid_url(url):
 def fetch_article(url, retries=3):
     # Validate URL
     if not is_valid_url(url):
-        print(f"[{datetime.datetime.now()}] Invalid URL: {url}")
+        logging.error(f"[{datetime.datetime.now()}] Invalid URL: {url}")
         return None
 
     for i in range(retries):
         try:
             with create_webdriver() as driver:
                 driver.get(url)
-
                 # Wait for the page to load completely
                 time.sleep(5)
-
                 # Return the raw HTML content of the page
                 html = driver.page_source
 
             return html
         except Exception as e:
-            print(f"[{datetime.datetime.now()}] Error occurred on attempt {i+1} of {retries}: {e}")
+            logging.error(f"[{datetime.datetime.now()}] Error occurred on attempt {i+1} of {retries}: {e}")
             time.sleep(1)  # You can adjust this delay
 
-    print(f"[{datetime.datetime.now()}] Failed to fetch article from {url} after {retries} attempts")
+    logging.error(f"[{datetime.datetime.now()}] Failed to fetch article from {url} after {retries} attempts")
     return None
 
 
