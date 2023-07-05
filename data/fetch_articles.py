@@ -26,20 +26,25 @@ webdriver_service = Service('/usr/local/bin/chromedriver')
 @contextmanager
 def create_webdriver(retries=5):
     driver = None
-    for i in range(retries):
-        try:
-            driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
-            yield driver
-        except WebDriverException as e:
-            logging.error(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
-            if i < retries - 1:  # i is zero indexed
-                time.sleep(1)  # You can adjust this delay
-                continue
-            else:
-                raise
-        finally:
-            if driver:
-                driver.quit()
+    try:
+        for i in range(retries):
+            try:
+                driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+                break
+            except WebDriverException as e:
+                logging.error(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
+                if i < retries - 1:  # i is zero indexed
+                    time.sleep(1)  # You can adjust this delay
+                else:
+                    raise
+        yield driver
+    except Exception as e:  # Catch exceptions that happened while the driver was being used.
+        logging.error(f"[{datetime.datetime.now()}] Unexpected error: {e}")
+        raise
+    finally:
+        if driver:
+            driver.quit()
+
 
 def is_valid_url(url):
     try:
