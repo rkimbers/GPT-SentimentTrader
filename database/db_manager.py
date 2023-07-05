@@ -16,12 +16,10 @@ def connect_db():
         return sqlite3.connect(DB_NAME)
     except sqlite3.Error as e:
         logging.error(f"Error connecting to database: {e}")
-        return None
+        raise
 
 def create_table():
     conn = connect_db()
-    if conn is None:
-        return
     try:
         c = conn.cursor()
         c.execute('''
@@ -36,13 +34,12 @@ def create_table():
         conn.commit()
     except sqlite3.Error as e:
         logging.error(f"Error creating table: {e}")
+        raise
     finally:
         conn.close()
 
 def check_url_in_database(url):
     conn = connect_db()
-    if conn is None:
-        return False
     try:
         c = conn.cursor()
         c.execute("SELECT * FROM articles WHERE url=?", (url,))
@@ -50,7 +47,7 @@ def check_url_in_database(url):
         return result is not None
     except sqlite3.Error as e:
         logging.error(f"Error querying database: {e}")
-        return False
+        raise
     finally:
         conn.close()
 
@@ -59,8 +56,6 @@ def save_url_to_database(url, source, symbol, sentiment_score):
         logging.info(f"URL {url} already exists in the database. Skipping...")
         return
     conn = connect_db()
-    if conn is None:
-        return
     try:
         c = conn.cursor()
         c.execute("INSERT INTO articles (url, source, symbol, sentiment_score) VALUES (?, ?, ?, ?)",
@@ -70,13 +65,12 @@ def save_url_to_database(url, source, symbol, sentiment_score):
         logging.info(f"Duplicated URL {url}. Skipping...")
     except sqlite3.Error as e:
         logging.error(f"Error saving URL to database: {e}")
+        raise
     finally:
         conn.close()
 
 def fetch_sentiment_scores_from_database():
     conn = connect_db()
-    if conn is None:
-        return {}
     sentiment_scores = {}
     try:
         c = conn.cursor()
@@ -91,28 +85,26 @@ def fetch_sentiment_scores_from_database():
                 sentiment_scores[company] = [score]
     except sqlite3.Error as e:
         logging.error(f"Error fetching sentiment scores from database: {e}")
+        raise
     finally:
         conn.close()
     return sentiment_scores
 
 def delete_all_records():
     conn = connect_db()
-    if conn is None:
-        return
     try:
         c = conn.cursor()
         c.execute("DELETE FROM articles;")
         conn.commit()
     except sqlite3.Error as e:
         logging.error(f"Error deleting all records from database: {e}")
+        raise
     finally:
         logging.info("Deleted all contents from table articles")
         conn.close()
 
 def get_all_records():
     conn = connect_db()
-    if conn is None:
-        return []
     records = []
     try:
         c = conn.cursor()
@@ -120,6 +112,7 @@ def get_all_records():
         records = c.fetchall()
     except sqlite3.Error as e:
         logging.error(f"Error getting all records from database: {e}")
+        raise
     finally:
         conn.close()
     return records
