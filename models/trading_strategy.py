@@ -4,54 +4,57 @@ from alpaca.trading.client import TradingClient
 from .finance_utils import get_symbol, get_share_price, prepare_trades, calculate_total_sentiment
 from .finance_utils import compile_and_average_scores, translate_symbols
 from .account_utils import account_value, portfolio_positions
-#from database.db_manager import check_url_in_database, save_url_to_database
-#from my_alpaca.trading import submit_order
 from dotenv import load_dotenv
 from operator import itemgetter
 from math import floor
-
 import os
-import requests
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 def prepare_buy_orders(sentiment_scores):
     ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
     
-    portfolio_value = account_value()
-    order_cap = portfolio_value * 0.10
+    try:
+        portfolio_value = account_value()
+        order_cap = portfolio_value * 0.10
 
-    # Prepare trades and filter out any with a non-positive sentiment score
-    trades_preparation = [trade for trade in prepare_trades(sentiment_scores) if trade['sentiment_score'] > 0]
-    total_sentiment = calculate_total_sentiment(trades_preparation)
-    
-    trades_to_execute = []
-    for trade in trades_preparation:
-        symbol = trade['symbol']
-        sentiment_score = trade['sentiment_score']
+        # Prepare trades and filter out any with a non-positive sentiment score
+        trades_preparation = [trade for trade in prepare_trades(sentiment_scores) if trade['sentiment_score'] > 0]
+        total_sentiment = calculate_total_sentiment(trades_preparation)
         
-        weight = sentiment_score / total_sentiment  # Calculate weight for each stock
-        allocated_money = order_cap * weight  # Allocate money based on weight
+        trades_to_execute = []
+        for trade in trades_preparation:
+            symbol = trade['symbol']
+            sentiment_score = trade['sentiment_score']
+        
+            weight = sentiment_score / total_sentiment  # Calculate weight for each stock
+            allocated_money = order_cap * weight  # Allocate money based on weight
 
-        share_price = trade['share_price']
-        if share_price is None:
-            print(f"Skipping trade preparation for {symbol} due to inability to retrieve share price.")
-            continue
+            share_price = trade['share_price']
+            if share_price is None:
+                logging.info(f"Skipping trade preparation for {symbol} due to inability to retrieve share price.")
+                continue
 
-        qty = floor(allocated_money / share_price)  # Calculate quantity to buy
+            qty = floor(allocated_money / share_price)  # Calculate quantity to buy
 
-        trades_to_execute.append({
-            'symbol': symbol,
-            'qty': qty,
-            'side': 'buy',
-            'type': 'market',
-            'time_in_force': 'gtc'
-        })
+            trades_to_execute.append({
+                'symbol': symbol,
+                'qty': qty,
+                'side': 'buy',
+                'type': 'market',
+                'time_in_force': 'gtc'
+            })
 
-        order_cap -= qty * share_price  # Decrement the available order capital
+            order_cap -= qty * share_price  # Decrement the available order capital
 
-    return trades_to_execute
-
+        return trades_to_execute
+    except Exception as e:
+        logging.error(f"Exception occurred in prepare_buy_orders: {e}")
+        return []
 
 
 def prepare_sell_orders(sentiment_scores):
@@ -59,27 +62,31 @@ def prepare_sell_orders(sentiment_scores):
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
-    positions = portfolio_positions(trading_client)
+    try:
+        positions = portfolio_positions(trading_client)
 
-    sell_orders = []
-    for position in positions:
-        symbol = position['symbol']
-        score = sentiment_scores.get(symbol)
-        
-        if score is not None and score < 0:
-            fraction_to_sell = abs(score / 10)  # ex -2 becomes 0.2, -9 becomes 0.9
-            qty_to_sell = int(fraction_to_sell * int(position['qty']))
+        sell_orders = []
+        for position in positions:
+            symbol = position['symbol']
+            score = sentiment_scores.get(symbol)
+            
+            if score is not None and score < 0:
+                fraction_to_sell = abs(score / 10)  # ex -2 becomes 0.2, -9 becomes 0.9
+                qty_to_sell = int(fraction_to_sell * int(position['qty']))
 
-            if qty_to_sell > 0:
-                sell_orders.append({
-                    'symbol': symbol,
-                    'qty': qty_to_sell,
-                    'side': 'sell',
-                    'type': 'market',
-                    'time_in_force': 'gtc'
-                })
+                if qty_to_sell > 0:
+                    sell_orders.append({
+                        'symbol': symbol,
+                        'qty': qty_to_sell,
+                        'side': 'sell',
+                        'type': 'market',
+                        'time_in_force': 'gtc'
+                    })
 
-    return sell_orders
+        return sell_orders
+    except Exception as e:
+        logging.error(f"Exception occurred in prepare_sell_orders: {e}")
+        return []
 
 
 def prepare_immediate_order(company, score, side):
@@ -87,40 +94,43 @@ def prepare_immediate_order(company, score, side):
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
-    portfolio_value = account_value()
-    order_cap = portfolio_value * 0.01 # 1% of portfolio value for immediate orders
+    try:
+        portfolio_value = account_value()
+        order_cap = portfolio_value * 0.01  # 1% of portfolio value for immediate orders
 
-    # Translate company name to symbol
-    symbol = get_symbol(company)
-    if symbol is None:
-        print(f"Unable to translate company name to symbol for company: {company}")
+        # Translate company name to symbol
+        symbol = get_symbol(company)
+        if symbol is None:
+            logging.info(f"Unable to translate company name to symbol for company: {company}")
+            return None
+
+        # Obtain the current share value
+        share_price = get_share_price(symbol)
+        if share_price is None:
+            logging.info(f"Skipping trade preparation for {symbol} due to inability to retrieve share price.")
+            return None
+
+        # Calculate the weight of the order and the allocated money
+        weight = abs(score) 
+        allocated_money = order_cap * weight  # Allocate money based on weight
+
+        # Calculate the number of shares to purchase given the allocated money
+        qty = floor(allocated_money / share_price)
+
+        return {
+            'symbol': symbol,
+            'qty': qty,
+            'side': side,
+            'type': 'market',
+            'time_in_force': 'gtc'
+        }
+    except Exception as e:
+        logging.error(f"Exception occurred in prepare_immediate_order: {e}")
         return None
-
-    # Obtain the current share value
-    share_price = get_share_price(symbol)
-    if share_price is None:
-        print(f"Skipping trade preparation for {symbol} due to inability to retrieve share price.")
-        return None
-
-    # Calculate the weight of the order and the allocated money
-    weight = abs(score) # / 10  # Calculate weight based on score
-    allocated_money = order_cap * weight  # Allocate money based on weight
-
-    # Calculate the number of shares to purchase given the allocated money
-    qty = floor(allocated_money / share_price)
-
-    return {
-        'symbol': symbol,
-        'qty': qty,
-        'side': side,
-        'type': 'market',
-        'time_in_force': 'gtc'
-    }
 
 
 if __name__ == '__main__':
     load_dotenv()
-
 
     sentiment_scores = {
         'Nvidia': -8,
@@ -131,4 +141,4 @@ if __name__ == '__main__':
     }
 
     print(prepare_buy_orders(sentiment_scores))
-    #print(prepare_sell_orders(sentiment_scores))
+    print(prepare_sell_orders(sentiment_scores))

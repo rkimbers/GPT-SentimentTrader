@@ -1,8 +1,11 @@
 # finance_utils.py
 import requests
 import os
-
+import logging
 from typing import List, Dict
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 def compile_and_average_scores(score_lists):
     # Check if score_lists is a single float (not subscriptable)
@@ -34,27 +37,27 @@ def translate_symbols(scores_dict):
 
 
 def get_symbol(company_name):
+    try:
+        # Load Alpha Vantage API key from OS
+        API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+        
+        # Alpha Vantage SYMBOL SEARCH API endpoint
+        BASE_URL = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH"
 
-    # Load Alpha Vantage API key from OS
-    API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
-    
-    # Alpha Vantage SYMBOL SEARCH API endpoint
-    BASE_URL = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH"
+        # Search parameters
+        params = {
+            "keywords": company_name,
+            "apikey": API_KEY
+        }
 
-    # Search parameters
-    params = {
-        "keywords": company_name,
-        "apikey": API_KEY
-    }
+        # Send a GET request to the API
+        response = requests.get(BASE_URL, params=params)
 
-    # Send a GET request to the API
-    response = requests.get(BASE_URL, params=params)
+        # Convert the response to JSON 
+        data = response.json()
 
-    # Convert the response to JSON 
-    data = response.json()
-
-    # Return None if no matches
-    if not data.get('bestMatches'):
+    except requests.RequestException as e:
+        logging.error(f"Request to Alpha Vantage API failed: {e}")
         return None
 
     # The response includes a list of matches. Loop over them to find the first match where the region is "United States".
@@ -70,16 +73,19 @@ def get_symbol(company_name):
 
 # Gets share price given a ticker symbol
 def get_share_price(ticker):
-    
-    ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+    try:
+        ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+        url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={ALPHA_VANTAGE_API_KEY}"
 
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={ALPHA_VANTAGE_API_KEY}"
+        # Send the GET request and get the response
+        response = requests.get(url)
 
-    # Send the GET request and get the response
-    response = requests.get(url)
+        # Parse the JSON response
+        data = response.json()
 
-    # Parse the JSON response
-    data = response.json()
+    except requests.RequestException as e:
+        logging.error(f"Request to Alpha Vantage API failed: {e}")
+        return None
     
     # Ensure the response contains the key "Time Series (5min)"
     if "Time Series (5min)" in data:
@@ -96,30 +102,36 @@ def get_share_price(ticker):
     
 
 def prepare_trades(sentiment_scores):
-    trades_preparation = []
-    for company, sentiment_scores_list in sentiment_scores.items():
-        #print(f"Preparing trades for {company}...")
-        symbol = get_symbol(company)
-        if symbol is not None:
-            share_price = get_share_price(symbol)
-            if share_price is None:
-                print(f"Unable to get price for ticker {symbol} ({company}).")
-                continue
-            
-            # Calculate the average sentiment score using the new function
-            avg_sentiment_score = compile_and_average_scores(sentiment_scores_list)
+    try:
+        trades_preparation = []
+        for company, sentiment_scores_list in sentiment_scores.items():
+            symbol = get_symbol(company)
+            if symbol is not None:
+                share_price = get_share_price(symbol)
+                if share_price is None:
+                    logging.error(f"Unable to get price for ticker {symbol} ({company}).")
+                    continue
+                
+                # Calculate the average sentiment score using the new function
+                avg_sentiment_score = compile_and_average_scores(sentiment_scores_list)
 
-            trades_preparation.append({
-                'symbol': symbol,
-                'sentiment_score': avg_sentiment_score,
-                'share_price': share_price,
-            })
-        else:
-            print(f"Unable to find symbol for company {company}.")
-    return trades_preparation
+                trades_preparation.append({
+                    'symbol': symbol,
+                    'sentiment_score': avg_sentiment_score,
+                    'share_price': share_price,
+                })
+            else:
+                logging.error(f"Unable to find symbol for company {company}.")
+        return trades_preparation
 
-
+    except Exception as e:
+        logging.error(f"Error occurred while preparing trades: {e}")
+        return None
 
 
 def calculate_total_sentiment(trades_preparation):
-    return sum([trade['sentiment_score'] for trade in trades_preparation])
+    try:
+        return sum([trade['sentiment_score'] for trade in trades_preparation])
+    except Exception as e:
+        logging.error(f"Error occurred while calculating total sentiment: {e}")
+        return None
