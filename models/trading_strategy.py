@@ -52,6 +52,7 @@ def prepare_buy_orders(sentiment_scores):
         return trades_to_execute
     except Exception as e:
         logging.error(f"Exception occurred in prepare_buy_orders: {e}")
+        raise e
         return []
 
 
@@ -84,6 +85,7 @@ def prepare_sell_orders(sentiment_scores):
         return sell_orders
     except Exception as e:
         logging.error(f"Exception occurred in prepare_sell_orders: {e}")
+        raise e
         return []
 
 
@@ -124,6 +126,7 @@ def prepare_immediate_order(company, score, side):
         }
     except Exception as e:
         logging.error(f"Exception occurred in prepare_immediate_order: {e}")
+        raise e
         return None
 
 
