@@ -26,24 +26,24 @@ param trade: A dictionary representing the trade. It should contain the keys "sy
 def submit_order(order):
     ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-    
+
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
     symbol = order['symbol']
     qty = order['qty']
     side = order['side']
     type_ = order['type']
-    time_in_force = order['time_in_force']  
+    time_in_force = order['time_in_force']
 
-    # Change side to uppercase as it's expected by the SDK
+    # Convert side to uppercase as it's expected by the SDK
     side = side.upper()
 
-    # Check the side is either BUY or SELL
+    # Verify that the side is either BUY or SELL
     if side not in ["BUY", "SELL"]:
         print(f"Invalid side: {side} for symbol: {symbol}. Skipping...")
-        return
+        return f"Invalid side: {side} for symbol: {symbol}. Skipping..."
 
-    # Prepare the order data
+    # Assemble the order data
     order_data = MarketOrderRequest(
         symbol=symbol,
         qty=qty,
@@ -52,11 +52,13 @@ def submit_order(order):
         time_in_force=TimeInForce.GTC if time_in_force == 'gtc' else None
     )
 
-    # Submit the order
+    # Try to submit the order
     try:
         order_response = trading_client.submit_order(order_data)
-        for property_name, value in vars(order_response).items():
-            print(f"\"{property_name}\": {value}")
+        return order_response  # Return the order_response if successful
     except Exception as e:
-        print(f"Failed to submit order for {symbol}. Error: {e}")
+        error_message = f"Failed to submit order for {symbol}. Error: {e}"
+        print(error_message)
+        return error_message  # Return the error message if order submission failed
+
 
