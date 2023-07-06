@@ -18,11 +18,13 @@ import os
 import time
 import logging
 
-# Logging setup
+# Define the log file path depending on whether the app is running inside Docker
+log_file_path = '/app/logs/debug.log' if os.getenv("IN_DOCKER_CONTAINER") == "True" else 'debug.log'
+
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     handlers=[
-                        logging.FileHandler('debug.log'),
+                        logging.FileHandler(log_file_path),
                         logging.StreamHandler()
                     ])
 
