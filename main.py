@@ -36,6 +36,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
+
 def main():
     create_table()
     
