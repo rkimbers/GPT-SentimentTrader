@@ -165,10 +165,11 @@ def market_watch_fetch_articles():
             headline = article_div.find('h3', class_='article__headline')
             link = headline.find('a')
             href = link.get('href')
-            if href:
+            if href and href.startswith('http'):  # make sure it's a valid URL
                 article_links.append(href)
 
     return article_links[:10]  # Return only the first 10 article URLs
+
 
 
 def business_insider_fetch_articles():

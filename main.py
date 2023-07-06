@@ -4,9 +4,9 @@ from my_alpaca.trading import submit_order
 from data.fetch_articles import fetch_articles
 from data.process_articles import process_article  
 from models.trading_strategy import prepare_buy_orders, prepare_sell_orders, prepare_immediate_order
-from database.db_manager import create_table, check_url_in_database, save_url_to_database, get_all_scores
+from database.db_manager import create_table, check_url_in_database, save_url_to_database, fetch_all_from_database
 from my_twilio.messaging import send_order_text, send_immediate_order_text
-from database.db_manager import fetch_sentiment_scores_from_database, get_all_records, delete_all_records
+from database.db_manager import get_all_records, delete_all_records
 from my_twilio.messaging import send_market_open_message
 from dotenv import load_dotenv
 from tabulate import tabulate
@@ -55,8 +55,8 @@ def main():
 def fetch_and_analyze_articles():
     logging.info("Starting fetch_and_analyze_articles()")
     try:
+        
         urls_dict = fetch_articles()
-        sentiment_scores = {}
         for source, urls in urls_dict.items():
             for url in urls:
                 if check_url_in_database(url):
@@ -65,11 +65,8 @@ def fetch_and_analyze_articles():
                 processed_article = process_article(source, url)
                 if isinstance(processed_article, dict) and 'content' in processed_article:
                     scores = analyze_sentiment(processed_article)
+                    save_url_to_database(url, source, scores)  # Save the entire dictionary
                     for company, score_list in scores.items():
-                        if company in sentiment_scores:
-                            sentiment_scores[company].extend(score_list)
-                        else:
-                            sentiment_scores[company] = score_list
                         for score in score_list:
                             if score == 10:
                                 side = "buy"
@@ -82,20 +79,25 @@ def fetch_and_analyze_articles():
                                             send_immediate_order_text(order)
                                         except Exception as e:
                                             logging.error(f"Failed to send immediate order text: {e}")  
-                        save_url_to_database(url, source, company, score_list)                      
                 else:
-                    logging.error("Processed article is not in the expected format.")            
+                    logging.error("Processed article is not in the expected format.")  
+        
     except Exception as e:
         logging.error(f"Exception occurred in fetch_and_analyze_articles: {e}")
         raise
-
 
 
 def perform_trades():
     successful_buy_orders = []
     successful_sell_orders = []
     try:
-        sentiment_scores = fetch_sentiment_scores_from_database()
+        articles = fetch_all_from_database()
+        sentiment_scores = {}
+        for _, _, _, scores_dict in articles:
+            for company, scores in scores_dict.items():
+                if company not in sentiment_scores:
+                    sentiment_scores[company] = []
+                sentiment_scores[company].extend(scores)
         buy_orders = prepare_buy_orders(sentiment_scores)
         sell_orders = prepare_sell_orders(sentiment_scores)
         buy_orders = [order for order in buy_orders if order['qty'] > 0]
@@ -129,19 +131,25 @@ def perform_trades():
 
 
 def print_all_scores():
-    scores = get_all_scores()
-    logging.info("\nContents of the 'sentiment_scores' table at startup:")
-    logging.info(print_table_scores(scores))
-    logging.info("End of sentiment_scores content at startup.\n")
+    records = fetch_all_from_database()
+    logging.info("\nContents of the 'articles' table at startup:")
+    logging.info(print_table_records(records))
+    logging.info("End of articles content at startup.\n")
 
 
-def print_table_scores(records):
+def print_table_records(records):
     if not records:
-        print("No scores found.")
+        print("No records found.")
         return
 
-    headers = ["ID", "Article ID", "Symbol", "Sentiment Score"]
-    table = tabulate(records, headers=headers, tablefmt="fancy_grid")
+    headers = ["ID", "URL", "Source", "Sentiment Scores"]
+    formatted_records = []
+    for record in records:
+        id, url, source, scores = record
+        formatted_scores = ', '.join([f"{company}: {', '.join(map(str, score))}" for company, score in scores.items()])
+        formatted_records.append((id, url, source, formatted_scores))
+
+    table = tabulate(formatted_records, headers=headers, tablefmt="fancy_grid")
     print(table)
 
 

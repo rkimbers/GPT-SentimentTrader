@@ -29,7 +29,7 @@ def analyze_sentiment(article):
     Numbers around zero mean mixed sentiment. DO NOT return a description. If no company is found, please state that no company is found."""
 
     # Suggestion prompt due to AI's inherent uncertainty
-    suggestion_prompt = "Company: 6"
+    suggestion_prompt = "Company: Integer"
 
     # Prepare the user message (the article content)
     user_message = content
@@ -65,19 +65,16 @@ def analyze_sentiment(article):
     scores = defaultdict(list)
     try:
         responses = re.split(",|\\.", model_response)  # Separate different company-score pairs by comma or period
-
         for response in responses:
             response = response.strip()  # Remove leading/trailing whitespace
-
             if ":" in response:
                 parts = response.split(":")
                 company = parts[0].strip()
-
                 sentiment_score = int(re.findall(r"-?\d+", parts[1].strip())[0])  # handle numbers with a trailing period
-
                 scores[company].append(sentiment_score)
-
+                
     except ValueError:
         logging.error(f"Could not process the model's response: {model_response}")
-
+        
     return scores
+
