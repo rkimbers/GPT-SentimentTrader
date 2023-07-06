@@ -1,4 +1,5 @@
 # file: my_twilio/messaging.py
+
 from twilio.rest import Client
 import concurrent.futures
 import os
@@ -91,6 +92,7 @@ def send_immediate_order_text(order):
 
     except Exception as e:
         logging.error(f"Failed to send message: {e}")
+
 
 def send_market_open_message(status, error=None):
     try:
