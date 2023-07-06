@@ -55,5 +55,3 @@
             # Remove all images not currently in use
             docker system prune -af
           
-
-
