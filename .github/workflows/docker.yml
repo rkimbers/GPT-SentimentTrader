@@ -51,7 +51,7 @@
             docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
             docker stop gpt-sentimenttrader || true
             docker rm gpt-sentimenttrader || true
-            docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader -v articles-db:/app/articles $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
+            docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader -v logs-volume:/app/logs -v articles-db:/app/articles $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
             # Remove all images not currently in use
             docker system prune -af
           
