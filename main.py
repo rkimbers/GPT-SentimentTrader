@@ -4,7 +4,7 @@ from my_alpaca.trading import submit_order
 from data.fetch_articles import fetch_articles
 from data.process_articles import process_article  
 from models.trading_strategy import prepare_buy_orders, prepare_sell_orders, prepare_immediate_order
-from database.db_manager import create_table, check_url_in_database, save_url_to_database
+from database.db_manager import create_table, check_url_in_database, save_url_to_database, get_all_scores
 from my_twilio.messaging import send_order_text, send_immediate_order_text
 from database.db_manager import fetch_sentiment_scores_from_database, get_all_records, delete_all_records
 from my_twilio.messaging import send_market_open_message
@@ -37,11 +37,11 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 def main():
     create_table()
     
-    print_all_records()
+    print_all_scores()
     
     #delete_all_records()
         
-    #fetch_and_analyze_articles()
+    fetch_and_analyze_articles()
 
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
     schedule.every().monday.at("09:30").do(perform_trades)
@@ -63,34 +63,13 @@ def fetch_and_analyze_articles():
                     logging.info(f"The URL from '{source}' is already in the database.")
                     continue
                 processed_article = process_article(source, url)
-                scores = {}
                 if isinstance(processed_article, dict) and 'content' in processed_article:
                     scores = analyze_sentiment(processed_article)
-                    for k, v in scores.items():
-                        if k in sentiment_scores:
-                            sentiment_scores[k].extend(v)
-                        else:
-                            sentiment_scores[k] = v
-                        for score in v:
-                            if score == 10:
-                                side = "buy"
-                                order = prepare_immediate_order(k, score, side)
-                                if order is not None:
-                                    logging.info(f"Submitting immediate order: {order}")
-                                    result = submit_order(order)
-                                    if result:
-                                        try:
-                                            send_immediate_order_text(order)
-                                        except Exception as e:
-                                            logging.error(f"Failed to send immediate order text: {e}")
-                else:
-                    logging.error("Processed article is not in the expected format.")
-                for company, score_list in scores.items():
-                    try:
+                    for company, score_list in scores.items():
                         if company in sentiment_scores:
                             sentiment_scores[company].extend(score_list)
                         else:
-                            sentiment_scores[company] = score_list                         
+                            sentiment_scores[company] = score_list
                         for score in score_list:
                             if score == 10:
                                 side = "buy"
@@ -102,13 +81,14 @@ def fetch_and_analyze_articles():
                                         try:
                                             send_immediate_order_text(order)
                                         except Exception as e:
-                                            logging.error(f"Failed to send immediate order text: {e}")                                     
-                        save_url_to_database(url, source, company, score_list[0])                      
-                    except Exception as e:
-                        logging.error(f"Failed to save URL to database: {e}")
+                                            logging.error(f"Failed to send immediate order text: {e}")  
+                        save_url_to_database(url, source, company, score_list)                      
+                else:
+                    logging.error("Processed article is not in the expected format.")            
     except Exception as e:
         logging.error(f"Exception occurred in fetch_and_analyze_articles: {e}")
         raise
+
 
 
 def perform_trades():
@@ -148,19 +128,19 @@ def perform_trades():
             send_market_open_message("no_trades")
 
 
-def print_all_records():
-    records = get_all_records()
-    logging.info("\nContents of the 'articles' table at startup:")
-    logging.info(print_table(records))
-    logging.info("End of database content at startup.\n")
+def print_all_scores():
+    scores = get_all_scores()
+    logging.info("\nContents of the 'sentiment_scores' table at startup:")
+    logging.info(print_table_scores(scores))
+    logging.info("End of sentiment_scores content at startup.\n")
 
 
-def print_table(records):
+def print_table_scores(records):
     if not records:
-        print("No records found.")
+        print("No scores found.")
         return
 
-    headers = ["ID", "URL", "Source", "Symbol", "Sentiment Score"]
+    headers = ["ID", "Article ID", "Symbol", "Sentiment Score"]
     table = tabulate(records, headers=headers, tablefmt="fancy_grid")
     print(table)
 

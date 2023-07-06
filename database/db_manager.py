@@ -18,6 +18,7 @@ def connect_db():
         logging.error(f"Error connecting to database: {e}")
         raise
 
+
 def create_table():
     conn = connect_db()
     try:
@@ -27,8 +28,16 @@ def create_table():
                 id INTEGER PRIMARY KEY,
                 url TEXT UNIQUE,
                 source TEXT,
-                symbol TEXT,
-                sentiment_score REAL
+                symbol TEXT
+            )
+        ''')
+
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS sentiment_scores (
+                id INTEGER PRIMARY KEY,
+                article_id INTEGER,
+                sentiment_score REAL,
+                FOREIGN KEY(article_id) REFERENCES articles(id)
             )
         ''')
         conn.commit()
@@ -37,6 +46,7 @@ def create_table():
         raise
     finally:
         conn.close()
+
 
 def check_url_in_database(url):
     conn = connect_db()
@@ -51,15 +61,20 @@ def check_url_in_database(url):
     finally:
         conn.close()
 
-def save_url_to_database(url, source, symbol, sentiment_score):
+
+def save_url_to_database(url, source, symbol, sentiment_scores):
     if check_url_in_database(url):
         logging.info(f"URL {url} already exists in the database. Skipping...")
         return
     conn = connect_db()
     try:
         c = conn.cursor()
-        c.execute("INSERT INTO articles (url, source, symbol, sentiment_score) VALUES (?, ?, ?, ?)",
-                  (url, source, symbol, sentiment_score))
+        c.execute("INSERT INTO articles (url, source, symbol) VALUES (?, ?, ?)",
+                  (url, source, symbol))
+        article_id = c.lastrowid  # Get the id of the article we just inserted
+        for score in sentiment_scores:
+            c.execute("INSERT INTO sentiment_scores (article_id, sentiment_score) VALUES (?, ?)",
+                      (article_id, score))
         conn.commit()
     except sqlite3.IntegrityError:
         logging.info(f"Duplicated URL {url}. Skipping...")
@@ -69,12 +84,15 @@ def save_url_to_database(url, source, symbol, sentiment_score):
     finally:
         conn.close()
 
+
 def fetch_sentiment_scores_from_database():
     conn = connect_db()
     sentiment_scores = {}
     try:
         c = conn.cursor()
-        c.execute("SELECT symbol, sentiment_score FROM articles;")
+        c.execute("""SELECT articles.symbol, sentiment_scores.sentiment_score 
+                     FROM articles JOIN sentiment_scores 
+                     ON articles.id = sentiment_scores.article_id;""")
         records = c.fetchall()
         for record in records:
             company = record[0]
@@ -89,6 +107,7 @@ def fetch_sentiment_scores_from_database():
     finally:
         conn.close()
     return sentiment_scores
+
 
 def delete_all_records():
     conn = connect_db()
@@ -116,3 +135,18 @@ def get_all_records():
     finally:
         conn.close()
     return records
+
+
+def get_all_scores():
+    conn = connect_db()
+    scores = []
+    try:
+        c = conn.cursor()
+        c.execute("SELECT * FROM sentiment_scores;")
+        scores = c.fetchall()
+    except sqlite3.Error as e:
+        logging.error(f"Error getting all records from database: {e}")
+        raise
+    finally:
+        conn.close()
+    return scores
