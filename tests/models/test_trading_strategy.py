@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from models import trading_strategy
+from ...models import trading_strategy
 from unittest.mock import patch, MagicMock
 import os
 import pytest

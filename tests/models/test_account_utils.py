@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from models import account_utils
+from ...models import account_utils
 
 
 class TestAccountUtils(unittest.TestCase):

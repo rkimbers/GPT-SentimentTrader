@@ -2,7 +2,7 @@ import pytest
 import sqlite3
 import json
 from unittest.mock import patch
-from database.db_manager import *
+from ...database.db_manager import *
 
 def test_create_table():
     with patch('database.db_manager.sqlite3.connect') as mock_connect:

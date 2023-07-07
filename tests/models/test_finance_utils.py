@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from models import finance_utils
+from ...models import finance_utils
 
 class TestFinanceUtils(unittest.TestCase):
 

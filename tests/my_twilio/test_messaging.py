@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from my_twilio import messaging
+from ...my_twilio import messaging
 
 class TestMessaging(unittest.TestCase):
 
