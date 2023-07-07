@@ -1,5 +1,5 @@
 from unittest import TestCase, mock
-from ...data.process_articles import process_article
+from data.process_articles import process_article
 
 class ProcessArticlesTest(TestCase):
     @mock.patch('data.process_articles.create_webdriver')

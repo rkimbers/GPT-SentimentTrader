@@ -1,5 +1,5 @@
 from unittest import TestCase, mock
-from ...data.fetch_articles import fetch_article, yf_fetch_articles
+from data.fetch_articles import fetch_article, yf_fetch_articles
 
 class FetchArticlesTest(TestCase):
     @mock.patch('data.fetch_articles.create_webdriver')

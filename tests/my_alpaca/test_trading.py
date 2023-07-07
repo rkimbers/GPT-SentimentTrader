@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce
-from ...my_alpaca import trading
+from my_alpaca import trading
 
 class TradingTest(unittest.TestCase):
     @patch.object(TradingClient, "get_all_positions")

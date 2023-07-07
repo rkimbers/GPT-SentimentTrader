@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from ...my_openai import sentiment_analysis
+from my_openai import sentiment_analysis
 
 class TestSentimentAnalysis(unittest.TestCase):
     @patch('my_openai.sentiment_analysis.openai.ChatCompletion.create')
