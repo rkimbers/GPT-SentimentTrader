@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import requests
 import datetime
@@ -12,26 +13,28 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, TimeoutException
 
-# Setup Chrome options
-chrome_options = Options()
-chrome_options.add_argument("--headless")  # Ensure GUI is off
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
 
-# Chromedriver path
-webdriver_service = Service('/usr/local/bin/chromedriver')
 
 @contextmanager
 def create_webdriver(retries=5):
+    # Setup Chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Ensure GUI is off
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    # Chromedriver path
+    webdriver_service = Service('/usr/local/bin/chromedriver')
+    
     driver = None
     try:
         for i in range(retries):
             try:
                 driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
                 break
-            except WebDriverException as e:
+            except (WebDriverException, TimeoutException) as e:
                 logging.error(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
                 if i < retries - 1:  # i is zero indexed
                     time.sleep(1)  # You can adjust this delay
@@ -53,6 +56,7 @@ def is_valid_url(url):
     except ValueError:
         return False
 
+
 def fetch_article(url, retries=3):
     # Validate URL
     if not is_valid_url(url):
@@ -69,7 +73,7 @@ def fetch_article(url, retries=3):
                 html = driver.page_source
 
             return html
-        except Exception as e:
+        except (Exception, TimeoutException) as e:
             logging.error(f"[{datetime.datetime.now()}] Error occurred on attempt {i+1} of {retries}: {e}")
             time.sleep(1)  # You can adjust this delay
 
@@ -92,14 +96,20 @@ def yf_fetch_articles():
     base_url = "https://finance.yahoo.com"
     topic_url = "https://finance.yahoo.com/most-active"
 
-    response = requests.get(topic_url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    try:
+        response = requests.get(topic_url)
+        response.raise_for_status()  # Raise an exception if the request was unsuccessful
+    except (requests.RequestException, Exception) as e:
+        logging.error(f"Failed to fetch articles from Yahoo Finance: {e}")
+        return []
 
+    soup = BeautifulSoup(response.text, 'html.parser')
     article_links = []
     for link in soup.find_all('a'):
         href = link.get('href')
         if href and href.startswith("/news"):
             article_links.append(base_url + href)
+    logging.info(f"Successfully fetched articles from Yahoo Finance")
     return article_links[:10]  # Return only the first 10 article URLs
 
 
@@ -121,6 +131,7 @@ def reuters_fetch_articles():
                     
     return article_links[:10]  # Return only the first 10 article URLs
 
+
 def investing_com_fetch_articles():
     investing_com_base_url = "https://www.investing.com"
     investing_com_topic_url = "https://www.investing.com/news/stock-market-news"
@@ -138,19 +149,26 @@ def investing_com_fetch_articles():
                 
     return article_links[:10]  # Return only the first 10 article URLs
 
-def bloomberg_fetch_articles():
-    options = Options()
-    options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36")
 
+def bloomberg_fetch_articles():
     bloomberg_base_url = "https://www.bloomberg.com"
     bloomberg_topic_url = "https://www.bloomberg.com/markets"
 
     with create_webdriver() as driver:
         driver.get(bloomberg_topic_url)
-        elements = driver.find_elements("css selector", "a[href*='/news/articles/']")
-        article_links = [element.get_attribute('href') for element in elements if element.get_attribute('href')]
-        
+
+        # Wait for the page to load completely
+        time.sleep(10)  # Adjust the sleep duration if needed
+
+        # Get the page source
+        page_source = driver.page_source
+
+    soup = BeautifulSoup(page_source, 'html.parser')
+    elements = soup.find_all("a", href=re.compile("/news/articles/"))
+    article_links = [bloomberg_base_url + element['href'] if element['href'].startswith('/') else element['href'] for element in elements]
+
     return article_links[:10]  # Return only the first 10 article URLs
+
 
 def market_watch_fetch_articles():
     market_watch_base_url = "https://www.marketwatch.com"
@@ -171,23 +189,21 @@ def market_watch_fetch_articles():
     return article_links[:10]  # Return only the first 10 article URLs
 
 
-
 def business_insider_fetch_articles():
     business_insider_base_url = "https://markets.businessinsider.com"
     business_insider_topic_url = "https://markets.businessinsider.com/news/stocks"
-    
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
 
     with create_webdriver() as driver:
-        driver.get(business_insider_topic_url)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # Wait for at least one article link to be present
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.top-story__link, a.instrument-stories__link")))
-        articles = driver.find_elements("css selector", "a.top-story__link, a.instrument-stories__link")
-        article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
+        try:
+            driver.get(business_insider_topic_url)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            # Wait for at least one article link to be present
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.story-link")))
+            articles = driver.find_elements(By.CSS_SELECTOR, "a.story-link")
+            article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
+        except Exception as e:
+            logging.error(f"Failed to fetch articles from Business Insider: {e}")
+            return []
 
     return article_links[:10]  # Return only the first 10 article URLs
 
@@ -195,11 +211,11 @@ def business_insider_fetch_articles():
 if __name__ == '__main__':
    
     # Fetch the articles from the given URLs
-    print(yf_fetch_articles()) #working
-    print(reuters_fetch_articles()) #working
-    print(investing_com_fetch_articles()) #working
+    #print(yf_fetch_articles()) #working
+    #print(reuters_fetch_articles()) #working
+    #print(investing_com_fetch_articles()) #working
     print(bloomberg_fetch_articles()) #working
-    print(market_watch_fetch_articles()) #working
+    #print(market_watch_fetch_articles()) #working
     #print(business_insider_fetch_articles())
    
     #driver.quit()
