@@ -14,7 +14,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, TimeoutException
-
+from process_articles import bloomberg_bypass
+#from .process_articles import bloomberg_bypass
 
 
 @contextmanager
@@ -25,6 +26,9 @@ def create_webdriver(retries=5):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
 
     # Chromedriver path
     webdriver_service = Service('/usr/local/bin/chromedriver')
@@ -38,7 +42,7 @@ def create_webdriver(retries=5):
             except (WebDriverException, TimeoutException) as e:
                 logging.error(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
                 if i < retries - 1:  # i is zero indexed
-                    time.sleep(1)  # You can adjust this delay
+                    time.sleep(10)  # You can adjust this delay
                 else:
                     raise
         yield driver
@@ -63,7 +67,7 @@ def fetch_articles():
         "yahoo_finance": yf_fetch_articles(),
         "reuters": reuters_fetch_articles(),
         "investing_com": investing_com_fetch_articles(),
-        "bloomberg": bloomberg_fetch_articles(),
+        #"bloomberg": bloomberg_fetch_articles(),
         "market_watch": market_watch_fetch_articles(),
         "business_insider": business_insider_fetch_articles()
     }
@@ -129,27 +133,17 @@ def investing_com_fetch_articles():
 
 def bloomberg_fetch_articles():
     bloomberg_base_url = "https://www.bloomberg.com"
-    bloomberg_topic_url = "https://www.bloomberg.com/markets"
+    bloomberg_topic_url = "https://www.bloomberg.com/industries"
 
     with create_webdriver() as driver:
-        driver.get(bloomberg_topic_url)
-
-        # Wait for the page to load completely
-        try:
-            wait = WebDriverWait(driver, 10)
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a[href*='/news/articles/']")))
-        except TimeoutException:
-            print(driver.page_source)
-            raise
-
-        # Get the page source
-        page_source = driver.page_source
-
+        # Pass the URL to the bypass function
+        page_source = bloomberg_bypass(driver, bloomberg_topic_url)
+        
     soup = BeautifulSoup(page_source, 'html.parser')
     elements = soup.find_all("a", href=re.compile("/news/articles/"))
     article_links = [bloomberg_base_url + element['href'] if element['href'].startswith('/') else element['href'] for element in elements]
 
-    return article_links[:10]  # Return only the first 10 article URLs.
+    return article_links[-10:]  # Return only the last 10 article URLs.
 
 
 def market_watch_fetch_articles():
@@ -189,16 +183,3 @@ def business_insider_fetch_articles():
             return []
 
     return article_links[:10]  # Return only the first 10 article URLs
-
-
-if __name__ == '__main__':
-   
-    # Fetch the articles from the given URLs
-    #print(yf_fetch_articles()) #working
-    #print(reuters_fetch_articles()) #working
-    #print(investing_com_fetch_articles()) #working
-    #print(bloomberg_fetch_articles()) #working
-    #print(market_watch_fetch_articles()) #working
-    print(business_insider_fetch_articles())
-   
-    #driver.quit()
