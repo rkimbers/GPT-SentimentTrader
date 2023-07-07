@@ -33,6 +33,13 @@ The project is structured in the following way:
     - requirements.txt 
     - Dockerfile
     - LICENSE
+    /tests
+        /data
+        /database
+        /models
+        /my_alpaca
+        /my_openai
+        /my_twilio
 ```
     
     
