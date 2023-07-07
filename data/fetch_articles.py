@@ -24,6 +24,7 @@ def create_webdriver(retries=5):
     chrome_options.add_argument("--headless")  # Ensure GUI is off
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36")
 
     # Chromedriver path
     webdriver_service = Service('/usr/local/bin/chromedriver')
@@ -86,9 +87,9 @@ def fetch_articles():
         "yahoo_finance": yf_fetch_articles(),
         "reuters": reuters_fetch_articles(),
         "investing_com": investing_com_fetch_articles(),
-        #"bloomberg": bloomberg_fetch_articles(),
+        "bloomberg": bloomberg_fetch_articles(),
         "market_watch": market_watch_fetch_articles(),
-        #"business_insider": business_insider_fetch_articles()
+        "business_insider": business_insider_fetch_articles()
     }
     return article_urls_dict
 
@@ -158,7 +159,12 @@ def bloomberg_fetch_articles():
         driver.get(bloomberg_topic_url)
 
         # Wait for the page to load completely
-        time.sleep(10)  # Adjust the sleep duration if needed
+        try:
+            wait = WebDriverWait(driver, 10)
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a[href*='/news/articles/']")))
+        except TimeoutException:
+            print(driver.page_source)
+            raise
 
         # Get the page source
         page_source = driver.page_source
@@ -167,7 +173,7 @@ def bloomberg_fetch_articles():
     elements = soup.find_all("a", href=re.compile("/news/articles/"))
     article_links = [bloomberg_base_url + element['href'] if element['href'].startswith('/') else element['href'] for element in elements]
 
-    return article_links[:10]  # Return only the first 10 article URLs
+    return article_links[:10]  # Return only the first 10 article URLs.
 
 
 def market_watch_fetch_articles():
@@ -191,15 +197,16 @@ def market_watch_fetch_articles():
 
 def business_insider_fetch_articles():
     business_insider_base_url = "https://markets.businessinsider.com"
-    business_insider_topic_url = "https://markets.businessinsider.com/news/stocks"
+    business_insider_topic_url = "https://markets.businessinsider.com/stocks"
 
     with create_webdriver() as driver:
         try:
             driver.get(business_insider_topic_url)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             # Wait for at least one article link to be present
-            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.story-link")))
-            articles = driver.find_elements(By.CSS_SELECTOR, "a.story-link")
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.popular-articles__link")))
+
+            articles = driver.find_elements(By.CSS_SELECTOR, "a.popular-articles__link")
             article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
         except Exception as e:
             logging.error(f"Failed to fetch articles from Business Insider: {e}")
@@ -214,8 +221,8 @@ if __name__ == '__main__':
     #print(yf_fetch_articles()) #working
     #print(reuters_fetch_articles()) #working
     #print(investing_com_fetch_articles()) #working
-    print(bloomberg_fetch_articles()) #working
+    #print(bloomberg_fetch_articles()) #working
     #print(market_watch_fetch_articles()) #working
-    #print(business_insider_fetch_articles())
+    print(business_insider_fetch_articles())
    
     #driver.quit()
