@@ -34,11 +34,17 @@ def get_symbol(company_name):
     }
     response = requests.get(BASE_URL, params=params)
     if response.status_code != 200:
-        raise Exception(f"Request to Alpha Vantage API failed: {response.content}")
+        raise Exception(f"Request to Alpha Vantage API failed: {response.content}") 
     data = response.json()
+    # Check if 'bestMatches' is in the returned data
+    if 'bestMatches' not in data:
+        logging.error(f"Alpha Vantage API response does not contain 'bestMatches': {data}")
+        return None
     for match in data['bestMatches']:
         if match['4. region'] == "United States":
             return match['1. symbol']
+    # If no match was found
+    logging.info(f"No matching symbol found for company name: {company_name}")
     return None
 
 
