@@ -17,6 +17,7 @@ The project is structured in the following way:
         - __init__.py
         - trading.py
     /my_twilio
+        - __init__.py
         - messaging.py
     /data
         - __init__.py
@@ -28,6 +29,7 @@ The project is structured in the following way:
         - finance_utils.py
         - account_utils.py
     /database
+        - __init__.py
         - db_manager.py
     - main.py
     - requirements.txt 
