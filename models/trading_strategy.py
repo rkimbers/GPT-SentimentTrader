@@ -99,7 +99,11 @@ def prepare_immediate_order(company, score, side):
         order_cap = portfolio_value * 0.01  # 1% of portfolio value for immediate orders
 
         # Translate company name to symbol
-        symbol = get_symbol(company)
+        try:
+            symbol = get_symbol(company)
+        except Exception as e:
+            logging.error(f"Failed to get the symbol for company '{company}': {str(e)}")
+            return None
         if symbol is None:
             logging.info(f"Unable to translate company name to symbol for company: {company}")
             return None
@@ -111,7 +115,7 @@ def prepare_immediate_order(company, score, side):
             return None
 
         # Calculate the weight of the order and the allocated money
-        weight = abs(score) 
+        weight = abs(score)
         allocated_money = order_cap * weight  # Allocate money based on weight
 
         # Calculate the number of shares to purchase given the allocated money
