@@ -58,30 +58,6 @@ def is_valid_url(url):
         return False
 
 
-def fetch_article(url, retries=3):
-    # Validate URL
-    if not is_valid_url(url):
-        logging.error(f"[{datetime.datetime.now()}] Invalid URL: {url}")
-        return None
-
-    for i in range(retries):
-        try:
-            with create_webdriver() as driver:
-                driver.get(url)
-                # Wait for the page to load completely
-                time.sleep(5)
-                # Return the raw HTML content of the page
-                html = driver.page_source
-
-            return html
-        except (Exception, TimeoutException) as e:
-            logging.error(f"[{datetime.datetime.now()}] Error occurred on attempt {i+1} of {retries}: {e}")
-            time.sleep(1)  # You can adjust this delay
-
-    logging.error(f"[{datetime.datetime.now()}] Failed to fetch article from {url} after {retries} attempts")
-    return None
-
-
 def fetch_articles():
     article_urls_dict = {
         "yahoo_finance": yf_fetch_articles(),

@@ -9,8 +9,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from selenium.common.exceptions import NoSuchElementException
-from .fetch_articles import create_webdriver
-from .fetch_articles import *
+#from .fetch_articles import create_webdriver
+from fetch_articles import create_webdriver
+from fetch_articles import *
 
 
 def process_article(source, url, retries=3):
@@ -91,3 +92,4 @@ def bloomberg_bypass(url):
 
 if __name__ == '__main__':
     urls = business_insider_fetch_articles()
+    print(process_article("business_insider",urls))
