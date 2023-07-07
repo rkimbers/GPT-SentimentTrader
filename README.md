@@ -31,10 +31,6 @@ The project is structured in the following way:
     /database
         - __init__.py
         - db_manager.py
-    - main.py
-    - requirements.txt 
-    - Dockerfile
-    - LICENSE
     /tests
         /data
             - test_fetch_articles.py
@@ -51,6 +47,10 @@ The project is structured in the following way:
             - test_sentiment_analysis.py
         /my_twilio
             - test_messaging.py
+    - main.py
+    - requirements.txt 
+    - Dockerfile
+    - LICENSE
 ```
     
     
