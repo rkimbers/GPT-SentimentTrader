@@ -82,7 +82,7 @@ def fetch_articles():
         "yahoo_finance": yf_fetch_articles(),
         "reuters": reuters_fetch_articles(),
         "investing_com": investing_com_fetch_articles(),
-        "bloomberg": bloomberg_fetch_articles(),
+        #"bloomberg": bloomberg_fetch_articles(),
         "market_watch": market_watch_fetch_articles(),
         #"business_insider": business_insider_fetch_articles()
     }
