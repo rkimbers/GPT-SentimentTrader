@@ -35,11 +35,20 @@ The project is structured in the following way:
     - LICENSE
     /tests
         /data
+            - test_fetch_articles.py
+            - test_process_articles.py
         /database
+            - test_db_manager.py
         /models
+            - test_trading_strategy.py
+            - test_finance_utils.py
+            - test_account_utils.py
         /my_alpaca
+            - test_trading.py
         /my_openai
+            - test_sentiment_analysis.py
         /my_twilio
+            - test_messaging.py
 ```
     
     
