@@ -15,7 +15,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, TimeoutException
 #from process_articles import bloomberg_bypass #testing file
-from .process_articles import bloomberg_bypass #runnig main
+#from .process_articles import bloomberg_bypass #runnig main
 
 
 @contextmanager
@@ -132,6 +132,8 @@ def investing_com_fetch_articles():
 
 
 def bloomberg_fetch_articles():
+    from .process_articles import bloomberg_bypass
+    
     bloomberg_base_url = "https://www.bloomberg.com"
     bloomberg_topic_url = "https://www.bloomberg.com/industries"
 

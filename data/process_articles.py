@@ -7,8 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import WebDriverException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -16,8 +15,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from .fetch_articles import create_webdriver, is_valid_url #running main
 #from fetch_articles import create_webdriver
 #from fetch_articles import * #testing file
-import http.cookiejar
-import requests
 from bs4 import BeautifulSoup
 
 
