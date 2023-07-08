@@ -103,14 +103,12 @@ def reuters_fetch_articles():
         soup = BeautifulSoup(driver.page_source, 'html.parser')
 
         article_links = []
-        for link in soup.find_all('a', {'data-testid': 'Heading'}):
-            class_list = link.get('class')
-            if 'text__text__1FZLe' in class_list and 'text__dark-grey__3Ml43' in class_list and 'text__medium__1kbOh' in class_list:
-                href = link.get('href')
-                if href and href.startswith('/'):  # href could be a relative URL
-                    article_links.append(reuters_base_url + href)
+        for link in soup.find_all('a', {'data-testid': 'Link'}):
+            href = link.get('href')
+            if href and href.startswith('/'):  # href could be a relative URL
+                article_links.append(reuters_base_url + href)
                     
-    return article_links[:10]  # Return only the first 10 article URLs
+    return article_links[:10]  # Return only the first 10 article URLs.
 
 
 def investing_com_fetch_articles():
@@ -185,3 +183,8 @@ def business_insider_fetch_articles():
             return []
 
     return article_links[:10]  # Return only the first 10 article URLs
+
+
+if __name__ == '__main__':
+    #print(reuters_fetch_articles())
+    print(yf_fetch_articles())
