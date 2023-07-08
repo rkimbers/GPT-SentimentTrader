@@ -42,7 +42,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        python -m unittest discover -s tests_package -p "test_*.py" -v
+        python -m unittest discover -s app/tests_package -p "test_*.py" -v
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
