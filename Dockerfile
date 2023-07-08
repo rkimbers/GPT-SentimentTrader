@@ -37,6 +37,7 @@ RUN CHROME_DRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_R
 # Define environment variable
 ENV NAME GPT-SentimentTrader
 ENV IN_DOCKER_CONTAINER=True
+ENV PYTHONPATH /app
 
 # Run main.py when the container launches
 #CMD ["python", "main.py"]
