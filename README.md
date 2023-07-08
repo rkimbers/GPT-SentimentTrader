@@ -31,21 +31,28 @@ The project is structured in the following way:
     /database
         - __init__.py
         - db_manager.py
-    /tests
+    /tests-package
+        - __init__.py
         /data
+            - __init__.py
             - test_fetch_articles.py
             - test_process_articles.py
         /database
+            - __init__.py
             - test_db_manager.py
         /models
+            - __init__.py
             - test_trading_strategy.py
             - test_finance_utils.py
             - test_account_utils.py
         /my_alpaca
+            - __init__.py
             - test_trading.py
         /my_openai
+            - __init__.py
             - test_sentiment_analysis.py
         /my_twilio
+            - __init__.py
             - test_messaging.py
     - main.py
     - requirements.txt 
