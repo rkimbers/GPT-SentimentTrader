@@ -32,3 +32,5 @@ articles.db
 debug.log
 # Articles for testing
 #testing_articles.txt
+
+prompt.txt
