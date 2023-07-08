@@ -31,7 +31,7 @@ The project is structured in the following way:
     /database
         - __init__.py
         - db_manager.py
-    /tests-package
+    /tests_package
         - __init__.py
         /data
             - __init__.py
