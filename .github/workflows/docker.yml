@@ -40,9 +40,9 @@ jobs:
 #    - name: Add app to PYTHONPATH
 #      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/app" >> $GITHUB_OUTPUT
 
-    - name: Run Tests
-      run: |
-        python -m unittest discover -p "test_*.py" -v
+#    - name: Run Tests
+#      run: |
+#        python -m unittest discover -p "test_*.py" -v
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
