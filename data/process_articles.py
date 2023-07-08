@@ -13,8 +13,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from .fetch_articles import create_webdriver, is_valid_url
-#from fetch_articles import create_webdriver
+#from .fetch_articles import create_webdriver, is_valid_url
+from fetch_articles import create_webdriver
 #from fetch_articles import *
 import http.cookiejar
 import requests
