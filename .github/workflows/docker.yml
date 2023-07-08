@@ -38,7 +38,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Add app to PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/app" >> $GITHUB_ENV
+      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/app" >> $GITHUB_OUTPUT
 
     - name: Run Tests
       run: |
@@ -70,4 +70,4 @@ jobs:
           docker rm gpt-sentimenttrader || true
           docker run --env-file /home/ubuntu/.env -d -p 8080:80 --name gpt-sentimenttrader -v logs-volume:/app/logs -v articles-db:/app/articles $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/gpt-sentimenttrader:${{ github.sha }}
           # Remove all images not currently in use
-          docker system prune -af
+          docker system prune -a
