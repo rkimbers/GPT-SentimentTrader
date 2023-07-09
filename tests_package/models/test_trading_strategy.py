@@ -49,4 +49,4 @@ class TestTradingStrategy(unittest.TestCase):
             patch('models.TradingClient') as MockClient:
             MockClient.return_value = MagicMock()
             with pytest.raises(Exception, match="Skipping trade preparation for AAPL due to inability to retrieve share price."):
-                prepare_immediate_order('Apple', 0.8, 'buy')
+                trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
