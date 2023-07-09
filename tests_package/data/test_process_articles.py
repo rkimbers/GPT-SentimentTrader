@@ -21,4 +21,4 @@ class ProcessArticlesTest(TestCase):
         mock_create_webdriver().__enter__().page_source = "<html></html>"
         result = fetch_article('https://finance.yahoo.com/news/1-amazon-workers-uk-warehouse-211200564.html')
         #self.assertEqual(result, "<html></html>")
-        self.assertRegex(result, r'<html>.+</html>')
+        self.assertRegex(result, r'(?s)<html>.+</html>')
