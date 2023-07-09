@@ -19,7 +19,7 @@ from selenium.common.exceptions import WebDriverException, TimeoutException
 
 
 @contextmanager
-def create_webdriver(retries=5):
+def create_webdriver(retries=10):
     # Setup Chrome options
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Ensure GUI is off
@@ -39,10 +39,10 @@ def create_webdriver(retries=5):
             try:
                 driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
                 break
-            except (WebDriverException, TimeoutException) as e:
-                logging.error(f"[{datetime.datetime.now()}] WebDriverException occurred on attempt {i+1} of {retries}: {e}")
+            except Exception as e:  # Catch any exception
+                logging.error(f"[{datetime.datetime.now()}] Exception occurred on attempt {i+1} of {retries}: {e}")
                 if i < retries - 1:  # i is zero indexed
-                    time.sleep(10)  # You can adjust this delay
+                    time.sleep(20)  # You can adjust this delay
                 else:
                     raise
         yield driver
