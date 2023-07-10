@@ -42,7 +42,7 @@ def main():
     
     print_all_scores()
     
-    perform_trades()
+    #perform_trades()
 
     logging.info("Scheduling jobs at %s", time.strftime("%H:%M:%S", time.localtime()))
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
