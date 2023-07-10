@@ -4,6 +4,7 @@ import os
 import logging
 from typing import List, Dict
 
+failed_tickers = set()
 
 def compile_and_average_scores(score_lists):
     if isinstance(score_lists, float):
@@ -36,31 +37,44 @@ def get_symbol(company_name):
     if response.status_code != 200:
         raise Exception(f"Request to Alpha Vantage API failed: {response.content}") 
     data = response.json()
-    # Check if 'bestMatches' is in the returned data
     if 'bestMatches' not in data:
         logging.error(f"Alpha Vantage API response does not contain 'bestMatches': {data}")
         return None
     for match in data['bestMatches']:
         if match['4. region'] == "United States":
             return match['1. symbol']
-    # If no match was found
+    if data['bestMatches']:
+        # If no match was found in the US, return the first match regardless of region
+        return data['bestMatches'][0]['1. symbol']
+    # If no match was found at all
     logging.info(f"No matching symbol found for company name: {company_name}")
     return None
 
 
 def get_share_price(ticker):
-    ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={ALPHA_VANTAGE_API_KEY}"
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise Exception(f"Request to Alpha Vantage API failed: {response.content}")
-    data = response.json()
-    if "Time Series (5min)" in data:
-        recent_timestamp = max(data["Time Series (5min)"].keys())
-        recent_price = data["Time Series (5min)"][recent_timestamp]["4. close"]
-        return float(recent_price)
-    else:
-        raise Exception(f"Unable to get price for ticker {ticker}")
+    if ticker in failed_tickers:
+        return None  # skip unsupported tickers
+    try:
+        ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
+        url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={ALPHA_VANTAGE_API_KEY}"
+        response = requests.get(url)
+        if response.status_code != 200:
+            logging.error(f"Non-200 response for ticker {ticker}: {response.content}")
+            failed_tickers.add(ticker)  # add this
+            return None  # change from raising an exception to returning None
+        data = response.json()
+        if "Time Series (5min)" in data:
+            recent_timestamp = max(data["Time Series (5min)"].keys())
+            recent_price = data["Time Series (5min)"][recent_timestamp]["4. close"]
+            return float(recent_price)
+        else:
+            logging.error(f"No price data found for ticker {ticker}: {data}")
+            failed_tickers.add(ticker)  # add this
+            return None  # change from raising an exception to returning None
+    except Exception as e:
+        logging.error(f"Error getting price data for {ticker}: {str(e)}")
+        failed_tickers.add(ticker)
+        return None
 
 
 def prepare_trades(sentiment_scores):
@@ -68,10 +82,13 @@ def prepare_trades(sentiment_scores):
     for company, sentiment_scores_list in sentiment_scores.items():
         symbol = get_symbol(company)
         if symbol is None:
-            raise Exception(f"Unable to find symbol for company {company}")
+            logging.error(f"Unable to find symbol for company {company}")
+            continue  # continue to the next company if we cannot find the symbol
         share_price = get_share_price(symbol)
         if share_price is None:
-            raise Exception(f"Unable to get price for ticker {symbol} ({company})")
+            logging.error(f"Unable to get price for ticker {symbol} ({company})")
+            failed_tickers.add(symbol)
+            continue  # continue to the next company if we cannot get the share price
         avg_sentiment_score = compile_and_average_scores(sentiment_scores_list)
         trades_preparation.append({
             'symbol': symbol,
