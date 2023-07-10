@@ -42,10 +42,9 @@ def main():
     
     print_all_scores()
     
-    #delete_all_records()
-        
-    fetch_and_analyze_articles()
+    perform_trades()
 
+    logging.info("Scheduling jobs at %s", time.strftime("%H:%M:%S", time.localtime()))
     schedule.every(10).minutes.do(fetch_and_analyze_articles)
     schedule.every().monday.at("09:30").do(perform_trades)
     schedule.every().monday.at("10:00").do(delete_all_records)
@@ -56,7 +55,7 @@ def main():
 
 
 def fetch_and_analyze_articles():
-    logging.info("Starting fetch_and_analyze_articles()")
+    logging.info("Starting fetch_and_analyze_articles() at %s", time.strftime("%H:%M:%S", time.localtime()))
     try:
         
         urls_dict = fetch_articles()
@@ -91,6 +90,7 @@ def fetch_and_analyze_articles():
 
 
 def perform_trades():
+    logging.info("Starting perform_trades() at %s", time.strftime("%H:%M:%S", time.localtime()))
     successful_buy_orders = []
     successful_sell_orders = []
     try:
