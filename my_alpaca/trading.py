@@ -12,7 +12,7 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 def list_positions():
     try:
         ALPACA_API_KEY = os.getenv("APCA_API_KEY_ID")
-        ALPACA_SECRET_KEY = os.getenv("APCA_SECRET_KEY")
+        ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
         trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
         positions = trading_client.get_all_positions()
         for position in positions:
@@ -26,7 +26,7 @@ def list_positions():
 def submit_order(order):
     try:
         ALPACA_API_KEY = os.getenv("APCA_API_KEY_ID")
-        ALPACA_SECRET_KEY = os.getenv("APCA_SECRET_KEY")
+        ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
         trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
         symbol = order['symbol']
