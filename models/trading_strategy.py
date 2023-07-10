@@ -117,11 +117,11 @@ def prepare_immediate_order(company, score, side):
             return None
 
         # Calculate the weight of the order and the allocated money
-        weight = abs(score)
-        allocated_money = order_cap * weight  # Allocate money based on weight
+        #weight = abs(score)
+        #allocated_money = order_cap * weight  # Allocate money based on weight
 
         # Calculate the number of shares to purchase given the allocated money
-        qty = floor(allocated_money / share_price)
+        qty = floor(order_cap / share_price)
 
         return {
             'symbol': symbol,
