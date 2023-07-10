@@ -25,29 +25,30 @@ def prepare_buy_orders(sentiment_scores):
         total_sentiment = calculate_total_sentiment(trades_preparation)
         
         trades_to_execute = []
-        for trade in trades_preparation:
-            symbol = trade['symbol']
-            sentiment_score = trade['sentiment_score']
-        
-            weight = sentiment_score / total_sentiment  # Calculate weight for each stock
-            allocated_money = order_cap * weight  # Allocate money based on weight
+        for score in trades_preparation:
+            try:
+                if score['sentiment_score'] > 0:
+                    symbol = score['symbol']
+                    sentiment_score = score['sentiment_score']
+                    share_price = score['share_price']  # Get the share price from the score dictionary
 
-            share_price = trade['share_price']
-            if share_price is None:
-                logging.info(f"Skipping trade preparation for {symbol} due to inability to retrieve share price.")
+                    weight = sentiment_score / total_sentiment  # Calculate weight for each stock
+                    allocated_money = order_cap * weight  # Allocate money based on weight
+
+                    qty = floor(allocated_money / share_price)  # Calculate quantity to buy
+
+                    trades_to_execute.append({
+                        'symbol': symbol,
+                        'qty': qty,
+                        'side': 'buy',
+                        'type': 'market',
+                        'time_in_force': 'gtc'
+                    })
+
+                    order_cap -= qty * share_price  # Decrement the available order capital
+            except Exception as e:
+                logging.error(f"Error preparing buy order for {symbol}: {str(e)}")
                 continue
-
-            qty = floor(allocated_money / share_price)  # Calculate quantity to buy
-
-            trades_to_execute.append({
-                'symbol': symbol,
-                'qty': qty,
-                'side': 'buy',
-                'type': 'market',
-                'time_in_force': 'gtc'
-            })
-
-            order_cap -= qty * share_price  # Decrement the available order capital
 
         return trades_to_execute
     except Exception as e:
@@ -56,13 +57,14 @@ def prepare_buy_orders(sentiment_scores):
         return []
 
 
+
 def prepare_sell_orders(sentiment_scores):
     ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
     ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
     trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
 
     try:
-        positions = portfolio_positions(trading_client)
+        positions = portfolio_positions()
 
         sell_orders = []
         for position in positions:
