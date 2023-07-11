@@ -59,7 +59,25 @@ The project is structured in the following way:
     - Dockerfile
     - LICENSE
 ```
-    
+
+## GitHub Workflow
+
+The project employs a continuous integration (CI) workflow using GitHub Actions for deployment to Amazon Elastic Container Service (ECS). 
+
+The workflow performs the following steps:
+
+1. Checkout the code from the repository
+2. Configure AWS credentials
+3. Cache Python dependencies to speed up workflow runs
+4. Log in to Amazon Elastic Container Registry (ECR)
+5. Setup Python environment
+6. Install Python dependencies from `requirements.txt`
+7. Build a Docker image and push it to ECR
+8. Deploy the Docker image to an EC2 instance
+
+The workflow is triggered on every push to the `main` branch. 
+
+To make use of this workflow, AWS access credentials, secrets for accessing the EC2 instance, ECR repository, and Alpaca API keys need to be stored in the GitHub repository's secrets.
     
 ## Modules
 Each directory contains modules that fulfill specific functions within the bot:
@@ -79,14 +97,24 @@ Each directory contains modules that fulfill specific functions within the bot:
 
 ## Setup & Installation
 
-To set up and run GPT-BasedTradingBot on your local machine, follow these steps:
+To set up and run GPT-SentimentTrader, follow these steps:
 
-Note that this will soon be outdated as the application will soon be containerized
-
-1. Clone the repository to your local machine: `git clone https://github.com/rkimbers/GPT-SentimentTrader.git`
-2. Navigate to the project directory: `cd GPT-SentimentTrader`
-3. Install the required Python packages: `pip install -r requirements.txt`
-4. Update the required API keys in your `.env` file
+1. Fork or clone the repository to your GitHub account.
+2. Add the necessary secrets to your repository. The required secrets are:
+    - `AWS_ACCESS_KEY_ID`: Your AWS access key ID
+    - `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key
+    - `AWS_REGION`: The AWS region where your resources are located
+    - `AWS_ACCOUNT_ID`: Your AWS account ID
+    - `AWS_ECR_REPOSITORY`: The name of your ECR repository
+    - `HOST`: The public IP address or DNS name of your EC2 instance
+    - `USERNAME`: The username to connect to your EC2 instance
+    - `SSH_PRIVATE_KEY`: The private key to connect to your EC2 instance
+    - `APCA_API_KEY_ID`: Your Alpaca API key ID
+    - `ALPACA_SECRET_KEY`: Your Alpaca secret key
+3. Clone the repository to your local machine: `git clone https://github.com/<your-username>/GPT-SentimentTrader.git`
+4. Navigate to the project directory: `cd GPT-SentimentTrader`
+5. Install the required Python packages: `pip install -r requirements.txt`
+6. Update the required API keys in your `.env` file
 
 ## Usage
 
@@ -103,7 +131,6 @@ GPT-SentimentTrader implements an array of Python packages:
 - Selenium for scraping dynamic content, such as artilce URLs
 - Twilio's API for SMS interactions.
 
-
 ## Contributions 
 
 Contributions to GPT-SentimentTrader are welcome! If you'd like to contribute, please fork the repository and make changes as you'd like. 
@@ -114,7 +141,7 @@ If you have any questions or need further clarification about the bot, feel free
 
 ## License
 
-The GPT-SentimentTrader application is licensed under the [GNU License](/LICENSE).
+The GPT-SentimentTrader application is licensed under the (GPL) [GNU License](/LICENSE).
 
 ## Goals
 
