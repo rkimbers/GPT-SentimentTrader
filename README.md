@@ -99,8 +99,10 @@ Each directory contains modules that fulfill specific functions within the bot:
 
 To set up and run GPT-SentimentTrader, follow these steps:
 
-1. Fork or clone the repository to your GitHub account.
-2. Add the necessary secrets to your repository. The required secrets are:
+1. Fork the repository to your GitHub account: Click on the 'Fork' button at the top of the repository page.
+2. Clone the forked repository to your local machine: `git clone https://github.com/<your-username>/GPT-SentimentTrader.git`
+3. Navigate to the project directory: `cd GPT-SentimentTrader`
+4. Add the necessary secrets to your repository. The required secrets are:
     - `AWS_ACCESS_KEY_ID`: Your AWS access key ID
     - `AWS_SECRET_ACCESS_KEY`: Your AWS secret access key
     - `AWS_REGION`: The AWS region where your resources are located
@@ -111,10 +113,9 @@ To set up and run GPT-SentimentTrader, follow these steps:
     - `SSH_PRIVATE_KEY`: The private key to connect to your EC2 instance
     - `APCA_API_KEY_ID`: Your Alpaca API key ID
     - `ALPACA_SECRET_KEY`: Your Alpaca secret key
-3. Clone the repository to your local machine: `git clone https://github.com/<your-username>/GPT-SentimentTrader.git`
-4. Navigate to the project directory: `cd GPT-SentimentTrader`
-5. Install the required Python packages: `pip install -r requirements.txt`
-6. Update the required API keys in your `.env` file
+5. Make changes to the codebase as required, commit the changes and push to the main branch: `git add .` -> `git commit -m "<your-commit-message>"` -> `git push origin main`
+
+GitHub Actions will then automatically build a Docker image of the application, push it to the specified Amazon ECR repository, and then deploy the image to your EC2 instance.
 
 ## Usage
 
