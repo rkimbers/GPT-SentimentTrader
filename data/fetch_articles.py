@@ -76,7 +76,7 @@ def fetch_articles():
 def yf_fetch_articles():
     base_url = "https://finance.yahoo.com"
     topic_url = "https://finance.yahoo.com/most-active"
-
+    
     try:
         response = requests.get(topic_url)
         response.raise_for_status()  # Raise an exception if the request was unsuccessful
@@ -99,16 +99,20 @@ def reuters_fetch_articles():
     reuters_topic_url = "https://www.reuters.com/business"
     
     with create_webdriver() as driver:
-        driver.get(reuters_topic_url)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        try:
+            driver.get(reuters_topic_url)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        article_links = []
-        for link in soup.find_all('a', {'data-testid': 'Link'}):
-            href = link.get('href')
-            if href and href.startswith('/'):  # href could be a relative URL
-                article_links.append(reuters_base_url + href)
-                    
-    return article_links[:10]  # Return only the first 10 article URLs.
+            article_links = []
+            for link in soup.find_all('a', {'data-testid': 'Link'}):
+                href = link.get('href')
+                if href and href.startswith('/'):  # href could be a relative URL
+                    article_links.append(reuters_base_url + href)
+        except (WebDriverException, TimeoutException, Exception) as e:
+            logging.error(f"Failed to fetch articles from Reuters: {e}")
+            return []
+
+    return article_links[:10]  # Return only the first 10 article URLs
 
 
 def investing_com_fetch_articles():
