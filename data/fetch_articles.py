@@ -114,18 +114,27 @@ def reuters_fetch_articles():
 def investing_com_fetch_articles():
     investing_com_base_url = "https://www.investing.com"
     investing_com_topic_url = "https://www.investing.com/news/stock-market-news"
-    
-    with create_webdriver() as driver:
-        driver.get(investing_com_topic_url)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        article_links = []
-        for article in soup.find_all('article', class_='js-article-item articleItem'):
-            link = article.find('a')
-            href = link.get('href')
-            if href:
-                article_links.append(investing_com_base_url + href)
-                
+    with create_webdriver() as driver:
+        try:
+            driver.get(investing_com_topic_url)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+            article_links = []
+            for article in soup.find_all('article', class_='js-article-item articleItem'):
+                link = article.find('a')
+                href = link.get('href')
+                if href:
+                    article_links.append(investing_com_base_url + href)
+
+        except (WebDriverException, TimeoutException) as e:
+            logging.error(f"Failed to fetch articles from Investing.com due to: {e}")
+            article_links = []
+
+        except Exception as e:
+            logging.error(f"Unexpected error occurred: {e}")
+            article_links = []
+
     return article_links[:10]  # Return only the first 10 article URLs
 
 
