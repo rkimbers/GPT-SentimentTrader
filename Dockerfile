@@ -1,5 +1,5 @@
-# Official Python runtime as a parent image
-FROM python:3.11.4
+# First stage: Build
+FROM python:3.11.4 as builder
 
 # Set the working directory in the container to /app
 WORKDIR /app
@@ -7,11 +7,23 @@ WORKDIR /app
 # Add the current directory contents into the container at /app
 ADD . /app
 
-# Create a new directory for data persistence
-RUN mkdir -p /app/articles
-
 # Install needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Second stage: Runtime
+FROM python:3.11.4
+
+# Set the working directory in the container to /app
+WORKDIR /app
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local /usr/local
+
+# Copy application files
+COPY . .
+
+# Create a new directory for data persistence
+RUN mkdir -p /app/articles
 
 # Install necessary system packages
 RUN apt-get update && apt-get install -y \
@@ -39,11 +51,5 @@ ENV NAME GPT-SentimentTrader
 ENV IN_DOCKER_CONTAINER=True
 ENV PYTHONPATH /app
 
-# Run main.py when the container launches
-#CMD ["python", "main.py"]
-
 # Run main.py when the container launches - unbuffered
-CMD ["python", "-u", "main.py"] 
-
-# Health check to check if container is running as expected
-#HEALTHCHECK --interval=5m --timeout=3s CMD python -c 'print("alive")' || exit 1
+CMD ["python", "-u", "main.py"]
