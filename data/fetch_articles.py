@@ -147,16 +147,20 @@ def bloomberg_fetch_articles():
     
     bloomberg_base_url = "https://www.bloomberg.com"
     bloomberg_topic_url = "https://www.bloomberg.com/industries"
-
+    
     with create_webdriver() as driver:
-        # Pass the URL to the bypass function
-        page_source = bloomberg_bypass(driver, bloomberg_topic_url)
+        try:
+            # Pass the URL to the bypass function
+            page_source = bloomberg_bypass(driver, bloomberg_topic_url)
+        except (WebDriverException, TimeoutException, Exception) as e:
+            logging.error(f"Failed to fetch articles from Bloomberg: {e}")
+            return []
         
     soup = BeautifulSoup(page_source, 'html.parser')
     elements = soup.find_all("a", href=re.compile("/news/articles/"))
     article_links = [bloomberg_base_url + element['href'] if element['href'].startswith('/') else element['href'] for element in elements]
-
-    return article_links[-10:]  # Return only the last 10 article URLs.
+    
+    return article_links[-10:]  # Return only the last 10 article URLs
 
 
 def market_watch_fetch_articles():
