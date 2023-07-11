@@ -27,8 +27,11 @@ RUN mkdir -p /app/articles
 
 # Install necessary system packages
 RUN apt-get update && apt-get install -y \
-    wget unzip \
+    wget unzip tzdata \
     && rm -rf /var/lib/apt/lists/*
+
+# Set timezone
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 # Install Google Chrome
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
