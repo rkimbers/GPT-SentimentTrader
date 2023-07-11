@@ -166,26 +166,29 @@ def bloomberg_fetch_articles():
 def market_watch_fetch_articles():
     market_watch_base_url = "https://www.marketwatch.com"
     market_watch_topic_url = "https://www.marketwatch.com/markets"
-
+    
     with create_webdriver() as driver:
-        driver.get(market_watch_topic_url)
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        try:
+            driver.get(market_watch_topic_url)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        article_links = []
-        for article_div in soup.find_all('div', class_='article__content'):
-            headline = article_div.find('h3', class_='article__headline')
-            link = headline.find('a')
-            href = link.get('href')
-            if href and href.startswith('http'):  # make sure it's a valid URL
-                article_links.append(href)
-
+            article_links = []
+            for article_div in soup.find_all('div', class_='article__content'):
+                headline = article_div.find('h3', class_='article__headline')
+                link = headline.find('a')
+                href = link.get('href')
+                if href and href.startswith('http'):  # make sure it's a valid URL
+                    article_links.append(href)
+        except (WebDriverException, TimeoutException, Exception) as e:
+            logging.error(f"Failed to fetch articles from Market Watch: {e}")
+            return []
     return article_links[:10]  # Return only the first 10 article URLs
 
 
 def business_insider_fetch_articles():
     business_insider_base_url = "https://markets.businessinsider.com"
     business_insider_topic_url = "https://markets.businessinsider.com/stocks"
-
+    
     with create_webdriver() as driver:
         try:
             driver.get(business_insider_topic_url)
@@ -195,10 +198,9 @@ def business_insider_fetch_articles():
 
             articles = driver.find_elements(By.CSS_SELECTOR, "a.popular-articles__link")
             article_links = [article.get_attribute("href") for article in articles if article.get_attribute("href") and "/news/stocks/" in article.get_attribute("href")]
-        except Exception as e:
+        except (WebDriverException, TimeoutException, Exception) as e:
             logging.error(f"Failed to fetch articles from Business Insider: {e}")
             return []
-
     return article_links[:10]  # Return only the first 10 article URLs
 
 
