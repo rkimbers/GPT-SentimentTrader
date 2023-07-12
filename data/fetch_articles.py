@@ -31,7 +31,10 @@ def create_webdriver(retries=10):
     chrome_options.add_argument("--disable-gpu")
 
     # Chromedriver path
-    webdriver_service = Service('/usr/local/bin/chromedriver')
+    service_log_path = '/app/chromedriver.log' if os.getenv("IN_DOCKER_CONTAINER") == "True" else 'chromedriver.log'
+    webdriver_service = Service('/usr/local/bin/chromedriver', 
+                                log_path=service_log_path, 
+                                service_args=['--verbose'])
     
     driver = None
     try:
