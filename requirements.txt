@@ -1,5 +1,4 @@
 #versioned requirements
-#alpaca-trade-api==3.0.0
 selenium==4.10.0
 beautifulsoup4==4.12.2
 openai==0.27.7
