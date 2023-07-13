@@ -55,4 +55,7 @@ ENV IN_DOCKER_CONTAINER=True
 ENV PYTHONPATH /app
 
 # Run main.py when the container launches - unbuffered
-CMD ["python", "-u", "main.py"]
+#CMD ["python", "-u", "main.py"]
+
+# Run app.py when the container launches - unbuffered
+CMD ["python", "-u", "/app/app.py"]
