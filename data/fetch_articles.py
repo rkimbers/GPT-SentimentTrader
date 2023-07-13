@@ -22,6 +22,11 @@ from selenium.common.exceptions import WebDriverException, TimeoutException
 def create_webdriver(retries=10):
     # Setup Chrome options
     chrome_options = Options()
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--disable-infobars") 
+    chrome_options.add_argument("--disable-setuid-sandbox")
+    chrome_options.add_argument("--window-size=1400,2100")
+    chrome_options.add_argument("--remote-debugging-port=9222") 
     chrome_options.add_argument("--headless")  # Ensure GUI is off
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
