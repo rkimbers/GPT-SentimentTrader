@@ -165,10 +165,3 @@ def get_captcha_token(driver):
     token = captcha_iframe.split("token=")[1].split("&")[0]
     return token
 
-
-if __name__ == '__main__':
-    urls = bloomberg_fetch_articles()
-    #print(urls)
-    #urls = urls[0]
-    #print(urls)
-    #print(process_article("bloomberg",urls))
