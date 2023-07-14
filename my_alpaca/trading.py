@@ -16,7 +16,7 @@ def list_positions():
         trading_client = TradingClient(ALPACA_API_KEY, ALPACA_SECRET_KEY, paper=True)
         positions = trading_client.get_all_positions()
         for position in positions:
-            for property_name, value in position:
+            for property_name, value in position.items():
                 logging.info(f"\"{property_name}\": {value}")
     except Exception as e:
         logging.error(f"Failed to list positions. Error: {e}")
@@ -57,3 +57,8 @@ def submit_order(order):
         error_message = f"Failed to submit order for {symbol}. Error: {e}"
         logging.error(error_message)
         raise e
+
+if __name__ == '__main__':
+    ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+    ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
+    print(list_positions())
