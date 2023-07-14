@@ -11,16 +11,16 @@ ADD . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Second stage: Runtime
-FROM python:3.11.4
+#FROM python:3.11.4
 
 # Set the working directory in the container to /app
-WORKDIR /app
+#WORKDIR /app
 
 # Copy installed packages from builder
-COPY --from=builder /usr/local /usr/local
+#COPY --from=builder /usr/local /usr/local
 
 # Copy application files
-COPY . .
+#COPY . .
 
 # Create a new directory for data persistence
 RUN mkdir -p /app/articles
