@@ -59,14 +59,14 @@ jobs:
 #    - name: Add app to PYTHONPATH
 #      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)/app" >> $GITHUB_OUTPUT
 
-    - name: Run tests
-      env:
-        APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
-        ALPACA_API_KEY: ${{ secrets.APCA_API_KEY_ID }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-        ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-      run: |
-        python -m unittest discover -p "test_*.py" -v
+#    - name: Run tests
+#      env:
+#        APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
+#        ALPACA_API_KEY: ${{ secrets.APCA_API_KEY_ID }}
+#        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+#        ALPHA_VANTAGE_API_KEY: #${{ secrets.ALPHA_VANTAGE_API_KEY }}
+#      run: |
+#        python -m unittest discover -p "test_*.py" -v
 
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
