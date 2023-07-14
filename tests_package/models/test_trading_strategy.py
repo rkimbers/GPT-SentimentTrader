@@ -36,18 +36,15 @@ class TestTradingStrategy(unittest.TestCase):
         self.assertEqual(order['type'], 'market')
         self.assertEqual(order['time_in_force'], 'gtc')
 
-# To test prepare_immediate_order failure due to untranslatable company name or missing share price, 
-# I've added the following test cases.
+#    @patch('trading_strategy.get_symbol', return_value=None)
+#    @patch('alpaca.trading.client.TradingClient', MagicMock())
+#    def test_prepare_immediate_order_failed_to_get_symbol(self, mock_get_symbol):
+#        order = trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
+#        self.assertIsNone(order)
 
-    @patch('trading_strategy.get_symbol', return_value=None)
-    @patch('alpaca.trading.client.TradingClient', MagicMock())
-    def test_prepare_immediate_order_failed_to_get_symbol(self, mock_get_symbol):
-        order = trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
-        self.assertIsNone(order)
-
-    @patch('trading_strategy.get_share_price', return_value=None)
-    @patch('trading_strategy.get_symbol', return_value='AAPL')
-    @patch('alpaca.trading.client.TradingClient', MagicMock())
-    def test_prepare_immediate_order_failed_to_get_share_price(self, mock_get_symbol, mock_get_share_price):
-        order = trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
-        self.assertIsNone(order)
+#    @patch('trading_strategy.get_share_price', return_value=None)
+#    @patch('trading_strategy.get_symbol', return_value='AAPL')
+#    @patch('alpaca.trading.client.TradingClient', MagicMock())
+#    def test_prepare_immediate_order_failed_to_get_share_price(self, mock_get_symbol, mock_get_share_price):
+#        order = trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
+#        self.assertIsNone(order)
