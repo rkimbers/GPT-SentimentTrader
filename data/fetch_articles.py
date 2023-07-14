@@ -83,7 +83,7 @@ def fetch_articles():
 
 def yf_fetch_articles():
     base_url = "https://finance.yahoo.com"
-    topic_url = "https://finance.yahoo.com/most-active"
+    topic_url = "https://finance.yahoo.com/topic/stock-market-news/"
     
     try:
         response = requests.get(topic_url)
