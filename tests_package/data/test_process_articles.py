@@ -9,9 +9,9 @@ class ProcessArticlesTest(TestCase):
         # Mock BeautifulSoup instance's find method to return a mock with text attribute
         instance = mock_bs4.return_value
         instance.find.return_value = mock.Mock(text='Article Content')
-        
+            
         mock_create_webdriver().__enter__().get.return_value = None
-        mock_create_webdriver().__enter__().page_source = "<html></html>"
+        mock_create_webdriver().__enter__().page_source = "<html><div class='caas-content'>Article Content</div></html>"
         result = process_article('yahoo_finance', 'https://finance.yahoo.com/news/2-auto-related-stocks-buy-011500740.html')
         self.assertEqual(result, {'content': 'Article Content'})
         
