@@ -1,7 +1,7 @@
 # File: /tests/models/test_trading_strategy.py
 import unittest
 from unittest.mock import patch, MagicMock
-from models import trading_strategy
+from models.trading_strategy import prepare_buy_orders, prepare_immediate_order, prepare_sell_orders
 import pytest
 
 class TestTradingStrategy(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestTradingStrategy(unittest.TestCase):
     @patch('trading_strategy.calculate_total_sentiment', return_value=5)
     def test_prepare_buy_orders(self, mock_calculate_total_sentiment, mock_prepare_trades, mock_account_value):
         sentiment_scores = {'Apple Inc': 5}
-        orders = trading_strategy.prepare_buy_orders(sentiment_scores)
+        orders = prepare_buy_orders(sentiment_scores)
         self.assertEqual(orders[0]['symbol'], 'AAPL')
         self.assertEqual(orders[0]['qty'], 2)
         self.assertEqual(orders[0]['side'], 'buy')
@@ -19,7 +19,7 @@ class TestTradingStrategy(unittest.TestCase):
     @patch('alpaca.trading.client.TradingClient', MagicMock())
     def test_prepare_sell_orders(self, mock_portfolio_positions):
         sentiment_scores = {'Apple Inc': -5}
-        orders = trading_strategy.prepare_sell_orders(sentiment_scores)
+        orders = prepare_sell_orders(sentiment_scores)
         self.assertEqual(orders[0]['symbol'], 'AAPL')
         self.assertEqual(orders[0]['qty'], 5)
         self.assertEqual(orders[0]['side'], 'sell')
@@ -29,7 +29,7 @@ class TestTradingStrategy(unittest.TestCase):
     @patch('trading_strategy.account_value', return_value=10000)
     @patch('alpaca.trading.client.TradingClient', MagicMock())
     def test_prepare_immediate_order_success(self, mock_account_value, mock_get_share_price, mock_get_symbol):
-        order = trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
+        order = prepare_immediate_order('Apple', 0.8, 'buy')
         self.assertEqual(order['symbol'], 'AAPL')
         self.assertEqual(order['qty'], 0)
         self.assertEqual(order['side'], 'buy')
