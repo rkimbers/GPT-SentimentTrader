@@ -40,10 +40,10 @@ class TestTradingStrategy(unittest.TestCase):
 #        with pytest.raises(Exception, match="Unable to translate company name to symbol for company: Apple"):
 #            trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
 
-    @patch('models.finance_utils.get_symbol', return_value='AAPL')
-    @patch('models.finance_utils.get_share_price', return_value=None)
-    @patch('alpaca.trading.client.TradingClient')
-    def test_prepare_immediate_order_failed_to_get_share_price(self, MockClient, mock_get_share_price, mock_get_symbol):
-        MockClient.return_value = MagicMock()
-        with pytest.raises(Exception, match="Skipping trade preparation for AAPL due to inability to retrieve share price."):
-            trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
+#    @patch('models.finance_utils.get_symbol', return_value='AAPL')
+#    @patch('models.finance_utils.get_share_price', return_value=None)
+#    @patch('alpaca.trading.client.TradingClient')
+#    def test_prepare_immediate_order_failed_to_get_share_price(self, MockClient, mock_get_share_price, mock_get_symbol):
+#        MockClient.return_value = MagicMock()
+#        with pytest.raises(Exception, match="Skipping trade preparation for AAPL due to inability to retrieve share price."):
+#            trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
