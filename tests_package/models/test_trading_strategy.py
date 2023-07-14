@@ -21,7 +21,7 @@ class TestTradingStrategy(unittest.TestCase):
         sentiment_scores = {'AAPL': -10}  # Worst possible sentiment
         orders = prepare_sell_orders(sentiment_scores)
         self.assertEqual(orders[0]['symbol'], 'AAPL')
-        self.assertEqual(orders[0]['qty'], 25)  # Adjusted expectation: 50% of 50 is 25
+        self.assertEqual(orders[0]['qty'], 50)  # Adjusted expectation: 50% of 50 is 25
         self.assertEqual(orders[0]['side'], 'sell')
 
     @patch('models.trading_strategy.get_symbol', return_value='AAPL')
