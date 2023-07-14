@@ -8,14 +8,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException, TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from .fetch_articles import create_webdriver, is_valid_url #running main
-#from fetch_articles import create_webdriver
-#from fetch_articles import * #testing file
-from bs4 import BeautifulSoup
+from .fetch_articles import create_webdriver, is_valid_url
 
 
 def process_article(source, url, retries=3):
@@ -164,4 +158,5 @@ def get_captcha_token(driver):
     captcha_iframe = captcha_frame.get_attribute("src")
     token = captcha_iframe.split("token=")[1].split("&")[0]
     return token
+
 
