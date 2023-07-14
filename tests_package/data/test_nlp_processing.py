@@ -27,5 +27,5 @@ class TestNLPProcessor(unittest.TestCase):
         mock_sent_tokenize.assert_called_once_with(article_body['content'])
         mock_word_tokenize.assert_called_with(mock_sent_tokenize.return_value[0])
         mock_pos_tag.assert_called_with(mock_word_tokenize.return_value)
-        processor.lemmatizer.lemmatize.assert_has_calls([Mock.call(word, pos=processor.get_wordnet_pos(pos)) for word, pos in mock_pos_tag.return_value])
+        processor.lemmatizer.lemmatize.assert_has_calls([mock.call(word, pos=processor.get_wordnet_pos(pos)) for word, pos in mock_pos_tag.return_value])
 
