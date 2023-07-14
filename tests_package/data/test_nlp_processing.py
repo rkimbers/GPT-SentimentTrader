@@ -14,14 +14,14 @@ class TestNLPProcessor(unittest.TestCase):
         processor = NLPProcessor()
 
         # Set lemmatization mock
-        mock_lemmatize.return_value = 'be'
+        mock_lemmatize.side_effect = lambda x, pos: x
 
         # Call the function to be tested
         article_body = {'content': "This is a sample text."}
         result = processor.process(article_body)
         
         # Verify the result
-        expected_result = {'content': 'this be sample text'}
+        expected_result = {'content': 'this sample text'}
         self.assertEqual(result, expected_result)
 
         # Assert that the mock objects were called with the correct arguments
@@ -29,6 +29,7 @@ class TestNLPProcessor(unittest.TestCase):
         mock_word_tokenize.assert_called_with('This is a sample text.')
         mock_pos_tag.assert_called_with(['this', 'is', 'a', 'sample', 'text'])
         mock_lemmatize.assert_has_calls([Mock.call(word, pos=processor.get_wordnet_pos(pos)) for word, pos in mock_pos_tag.return_value])
+
 
 
 
