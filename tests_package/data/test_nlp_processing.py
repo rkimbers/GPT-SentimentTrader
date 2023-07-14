@@ -4,32 +4,59 @@ from data.nlp_processing import NLPProcessor
 
 class TestNLPProcessor(unittest.TestCase):
 
-    @patch('nltk.tokenize.word_tokenize', return_value=['this', 'is', 'a', 'sample', 'text'])
-    @patch('nltk.tokenize.sent_tokenize', return_value=['This is a sample text.'])
-    @patch('nltk.tag.pos_tag', return_value=[('this', 'DT'), ('is', 'VBZ'), ('a', 'DT'), ('sample', 'JJ'), ('text', 'NN')])
-    @patch('nltk.stem.WordNetLemmatizer.lemmatize')
-    @patch('nltk.corpus.stopwords.words', return_value=['is', 'a'])
-    def test_process(self, mock_stopwords, mock_lemmatize, mock_pos_tag, mock_sent_tokenize, mock_word_tokenize):
-        # Create NLPProcessor instance
-        processor = NLPProcessor()
-
-        # Set lemmatization mock
-        mock_lemmatize.side_effect = lambda x, pos: x
-
-        # Call the function to be tested
-        article_body = {'content': "This is a sample text."}
-        result = processor.process(article_body)
+    @patch('nlp_processing.sent_tokenize', return_value=['This is a sample text.'])
+    @patch('nlp_processing.word_tokenize', return_value=['This', 'is', 'a', 'sample', 'text'])
+    def test_tokenize_sentences(self, mock_word_tokenize, mock_sent_tokenize):
+        content = 'This is a sample text.'
+        expected_result = [['This', 'is', 'a', 'sample', 'text']]
         
-        # Verify the result
-        expected_result = {'content': 'this sample text'}
+        processor = NLPProcessor()
+        result = processor.tokenize_sentences(content)
+        
         self.assertEqual(result, expected_result)
 
-        # Assert that the mock objects were called with the correct arguments
-        mock_sent_tokenize.assert_called_once_with('This is a sample text.')
-        mock_word_tokenize.assert_called_with('This is a sample text.')
-        mock_pos_tag.assert_called_with(['this', 'is', 'a', 'sample', 'text'])
-        mock_lemmatize.assert_has_calls([Mock.call(word, pos=processor.get_wordnet_pos(pos)) for word, pos in mock_pos_tag.return_value])
+    def test_remove_punctuations_and_non_alphabets(self):
+        sentences = [['This', 'is', 'a', 'sample', 'text!']]
+        expected_result = [['this', 'is', 'a', 'sample', 'text']]
+        
+        processor = NLPProcessor()
+        result = processor.remove_punctuations_and_non_alphabets(sentences)
+        
+        self.assertEqual(result, expected_result)
 
+    @patch('nlp_processing.stopwords.words', return_value=['is', 'a'])
+    def test_remove_stopwords(self, mock_stopwords):
+        sentences = [['this', 'is', 'a', 'sample', 'text']]
+        expected_result = [['this', 'sample', 'text']]
+        
+        processor = NLPProcessor()
+        result = processor.remove_stopwords(sentences)
+        
+        self.assertEqual(result, expected_result)
 
+    @patch('nlp_processing.pos_tag', return_value=[('this', 'NN'), ('sample', 'NN'), ('text', 'NN')])
+    def test_pos_tagging(self, mock_pos_tag):
+        sentences = [['this', 'sample', 'text']]
+        expected_result = [[('this', 'NN'), ('sample', 'NN'), ('text', 'NN')]]
+        
+        processor = NLPProcessor()
+        result = processor.pos_tagging(sentences)
+        
+        self.assertEqual(result, expected_result)
+
+    @patch('nlp_processing.WordNetLemmatizer')
+    def test_lemmatize(self, mock_lemmatizer):
+        sentences = [[('this', 'NN'), ('sample', 'NN'), ('text', 'NN')]]
+        expected_result = [['this', 'sample', 'text']]
+        mock_lemmatizer_instance = mock_lemmatizer.return_value
+        mock_lemmatizer_instance.lemmatize.side_effect = ['this', 'sample', 'text']
+        
+        processor = NLPProcessor()
+        result = processor.lemmatize(sentences)
+        
+        self.assertEqual(result, expected_result)
+
+    # Continue with the rest of the tests.
+    # You may also want to test the `process` function as a whole. 
 
 
