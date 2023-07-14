@@ -13,15 +13,15 @@ class TestNLPProcessor(unittest.TestCase):
         # Create NLPProcessor instance
         processor = NLPProcessor()
 
-        # Set lemmatization mock
-        mock_lemmatize.return_value = 'be'
+        # Set lemmatization mock to return input word
+        mock_lemmatize.side_effect = lambda word, pos: word
 
         # Call the function to be tested
         article_body = {'content': "This is a sample text."}
         result = processor.process(article_body)
         
         # Verify the result
-        expected_result = {'content': 'this be sample text'}
+        expected_result = {'content': 'this sample text'}
         self.assertEqual(result, expected_result)
 
         # Assert that the mock objects were called with the correct arguments
