@@ -21,6 +21,7 @@ The project is structured in the following way:
         - messaging.py
     /data
         - __init__.py
+        - nlp_processing.py
         - fetch_articles.py
         - process_articles.py
     /models
