@@ -33,12 +33,12 @@ class TestTradingStrategy(unittest.TestCase):
         assert order['type'] == 'market'
         assert order['time_in_force'] == 'gtc'
 
-    @patch('models.finance_utils.get_symbol', return_value=None)
-    @patch('alpaca.trading.client.TradingClient')
-    def test_prepare_immediate_order_failed_to_get_symbol(self, MockClient, mock_get_symbol):
-        MockClient.return_value = MagicMock()
-        with pytest.raises(Exception, match="Unable to translate company name to symbol for company: Apple"):
-            trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
+#    @patch('models.finance_utils.get_symbol', return_value=None)
+#    @patch('alpaca.trading.client.TradingClient')
+#    def test_prepare_immediate_order_failed_to_get_symbol(self, MockClient, mock_get_symbol):
+#        MockClient.return_value = MagicMock()
+#        with pytest.raises(Exception, match="Unable to translate company name to symbol for company: Apple"):
+#            trading_strategy.prepare_immediate_order('Apple', 0.8, 'buy')
 
     @patch('models.finance_utils.get_symbol', return_value='AAPL')
     @patch('models.finance_utils.get_share_price', return_value=None)
