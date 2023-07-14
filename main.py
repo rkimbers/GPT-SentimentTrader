@@ -3,6 +3,7 @@ from my_openai.sentiment_analysis import analyze_sentiment
 from my_alpaca.trading import submit_order
 from data.fetch_articles import fetch_articles
 from data.process_articles import process_article  
+from data.nlp_processing import NLPProcessor
 from models.trading_strategy import prepare_buy_orders, prepare_sell_orders, prepare_immediate_order
 from database.db_manager import create_table, check_url_in_database, save_url_to_database, fetch_all_from_database
 from my_twilio.messaging import send_order_text, send_immediate_order_text
@@ -57,6 +58,7 @@ def main():
 def fetch_and_analyze_articles():
     logging.info("Starting fetch_and_analyze_articles() at %s", time.strftime("%H:%M:%S", time.localtime()))
     try:
+        nlp_processor = NLPProcessor()  # Instantiate NLPProcessor
         
         urls_dict = fetch_articles()
         for source, urls in urls_dict.items():
@@ -65,6 +67,7 @@ def fetch_and_analyze_articles():
                     logging.info(f"The URL from '{source}' is already in the database.")
                     continue
                 processed_article = process_article(source, url)
+                processed_article = nlp_processor.process(processed_article)  # Process the article with NLP
                 if isinstance(processed_article, dict) and 'content' in processed_article:
                     scores = analyze_sentiment(processed_article)
                     save_url_to_database(url, source, scores)  # Save the entire dictionary
