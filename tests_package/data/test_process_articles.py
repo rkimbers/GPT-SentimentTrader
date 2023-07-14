@@ -8,7 +8,7 @@ class ProcessArticlesTest(TestCase):
     def test_process_article(self, mock_bs4, mock_create_webdriver):
         mock_create_webdriver().__enter__().get.return_value = None
         mock_create_webdriver().__enter__().page_source = "<html></html>"
-        result = process_article('yahoo_finance', 'https://example.com')
+        result = process_article('yahoo_finance', 'https://finance.yahoo.com/news/2-auto-related-stocks-buy-011500740.html')
         self.assertEqual(result, {'content': 'Article Content'})
         
     @mock.patch('data.process_articles.create_webdriver')
