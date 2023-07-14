@@ -16,8 +16,6 @@ class ProcessArticlesTest(TestCase):
     @mock.patch('data.fetch_articles.create_webdriver')
     @mock.patch('data.fetch_articles.is_valid_url', return_value=True)
     def test_fetch_article(self, mock_is_valid_url, mock_create_webdriver):
-        mock_create_webdriver().__enter__().get.return_value = None
         mock_create_webdriver().__enter__().page_source = "<html></html>"
         result = fetch_article('https://example.com')
         self.assertEqual(result, "<html></html>")
-        
