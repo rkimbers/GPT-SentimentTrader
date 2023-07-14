@@ -54,6 +54,12 @@ ENV NAME GPT-SentimentTrader
 ENV IN_DOCKER_CONTAINER=True
 ENV PYTHONPATH /app
 
+# Download NLTK datasets
+RUN python -c "import nltk; nltk.download('punkt')"
+RUN python -c "import nltk; nltk.download('stopwords')"
+RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger')"
+RUN python -c "import nltk; nltk.download('wordnet')"
+
 # Run main.py when the container launches - unbuffered
 #CMD ["python", "-u", "main.py"]
 
