@@ -34,6 +34,10 @@ jobs:
       run: |
         docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest || true
 
+    - name: Run Tests
+      run: |
+        python -m unittest discover -p "test_*.py" -v
+
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       env:
