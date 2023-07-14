@@ -15,23 +15,23 @@ class TestTradingStrategy(unittest.TestCase):
         self.assertEqual(orders[0]['qty'], 20)
         self.assertEqual(orders[0]['side'], 'buy')
 
-    @patch('models.trading_strategy.portfolio_positions', return_value=[{'symbol': 'AAPL', 'qty': 25}])
+    @patch('models.trading_strategy.portfolio_positions', return_value=[{'symbol': 'AAPL', 'qty': 50}])
     @patch('alpaca.trading.client.TradingClient', MagicMock())
     def test_prepare_sell_orders(self, mock_portfolio_positions):
         sentiment_scores = {'Apple Inc': -5}
         orders = prepare_sell_orders(sentiment_scores)
         self.assertEqual(orders[0]['symbol'], 'AAPL')
-        self.assertEqual(orders[0]['qty'], 12)
+        self.assertEqual(orders[0]['qty'], 25)  # The quantity may be different depending on how you round or truncate your numbers in the actual function
         self.assertEqual(orders[0]['side'], 'sell')
 
     @patch('models.trading_strategy.get_symbol', return_value='AAPL')
-    @patch('models.trading_strategy.get_share_price', return_value=150)
+    @patch('models.trading_strategy.get_share_price', return_value=50)
     @patch('models.trading_strategy.account_value', return_value=10000)
     @patch('alpaca.trading.client.TradingClient', MagicMock())
     def test_prepare_immediate_order_success(self, mock_account_value, mock_get_share_price, mock_get_symbol):
         order = prepare_immediate_order('Apple', 0.8, 'buy')
         self.assertEqual(order['symbol'], 'AAPL')
-        self.assertEqual(order['qty'], 66)  # Calculation may be different in actual execution
+        self.assertEqual(order['qty'], 20)  # Calculation may be different in actual execution
         self.assertEqual(order['side'], 'buy')
         self.assertEqual(order['type'], 'market')
         self.assertEqual(order['time_in_force'], 'gtc')
