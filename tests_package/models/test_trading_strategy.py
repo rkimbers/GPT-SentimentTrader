@@ -18,10 +18,10 @@ class TestTradingStrategy(unittest.TestCase):
     @patch('models.trading_strategy.portfolio_positions', return_value=[{'symbol': 'AAPL', 'qty': 50}])
     @patch('alpaca.trading.client.TradingClient', MagicMock())
     def test_prepare_sell_orders(self, mock_portfolio_positions):
-        sentiment_scores = {'AAPL': -50}  # Adjusted sentiment score to match the symbol in the portfolio_positions
+        sentiment_scores = {'AAPL': -10}  # Worst possible sentiment
         orders = prepare_sell_orders(sentiment_scores)
         self.assertEqual(orders[0]['symbol'], 'AAPL')
-        self.assertEqual(orders[0]['qty'], 25)  # Adjusted expectation
+        self.assertEqual(orders[0]['qty'], 25)  # Adjusted expectation: 50% of 50 is 25
         self.assertEqual(orders[0]['side'], 'sell')
 
     @patch('models.trading_strategy.get_symbol', return_value='AAPL')
