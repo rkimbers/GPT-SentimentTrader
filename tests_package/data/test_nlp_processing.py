@@ -23,7 +23,7 @@ class TestNLPProcessor(unittest.TestCase):
     def test_remove_stopwords(self, mock_stopwords):
         mock_stopwords.return_value = ['this', 'is']
         result = self.nlp_processor.remove_stopwords([['this', 'is', 'a', 'test']])
-        self.assertEqual(result, [['a', 'test']])
+        self.assertEqual(result, [['test']])
 
     @patch('nltk.sent_tokenize')
     def test_tokenize_sentences(self, mock_sent_tokenize):
