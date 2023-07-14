@@ -31,3 +31,4 @@ class TestNLPProcessor(unittest.TestCase):
         mock_lemmatize.assert_has_calls([Mock.call(word, pos=processor.get_wordnet_pos(pos)) for word, pos in mock_pos_tag.return_value])
 
 
+
