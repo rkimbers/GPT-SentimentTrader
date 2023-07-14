@@ -56,6 +56,7 @@ jobs:
       env:
         APCA_API_KEY_ID: ${{ secrets.APCA_API_KEY_ID }}
         ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
       run: |
         python -m unittest discover -p "test_*.py" -v
 
