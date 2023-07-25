@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  gpt-sentimenttrader:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - C:/Users/<Your User Name>/Documents/Docker/.env
+    volumes:
+      - ./logs:/app/logs
+      - ./articles:/app/articles
+    ports:
+      - 8080:80
