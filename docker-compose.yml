@@ -4,7 +4,7 @@ services:
     build: .
     restart: unless-stopped
     env_file:
-      - C:/Users/<Your User Name>/Documents/Docker/.env
+      - C:\Users\kimbe\OneDrive\Documents\Docker\.env
     volumes:
       - ./logs:/app/logs
       - ./articles:/app/articles
