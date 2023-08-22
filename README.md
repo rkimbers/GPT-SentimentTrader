@@ -151,5 +151,5 @@ This project was created with the intent to learn the interaction with OpenAI's 
 
 This project was NOT created with the expectation of being profitable. If you fork this repository and run this application on your own, please carry the same expectation. I am only responsible for financial gain. I am not responsible for financial loss.
 
-**University of Texas; please accept my transfer application🤘**
+🤘
 
